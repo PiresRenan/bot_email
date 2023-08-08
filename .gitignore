@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.Python
+*.egg-info/
+dist/
+build/
+lib/
+bin/
+
+# Editors
+.vscode/
+.idea/
+
+# Logs and Databases
+*.log
+*.db
+*.sqlite3
+
+# Compiled Files
+*.pyc
+*.pyo
+
+# Dependency directories
+__pycache__/
+.pytest_cache/
+mypy_cache/
+dist/
+build/
+node_modules/
+
+# Compiled Python files
+*.pyc
+*.pyo
+
+# Type checking
+.pyright
+
+# IDE-specific files
+*.idea/
+*.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Compiled bytecode
+__pycache__/
+
+# Data
+data/
+
+# Local development settings
+.local/
+
+# macOS
+.DS_Store
+
+# Temporary files
+*.swp
+*.swo
+
+# FastAPI specific
+__pycache__/
+alembic.ini
+alembic/versions/
