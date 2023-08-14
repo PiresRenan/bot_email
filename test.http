@@ -1,4 +1,9 @@
-GET http://localhost:8000/manual_exec
+GET http://localhost:8000/
+Accept: application/json
+
+###
+
+GET http://localhost:8000/test/
 Accept: application/json
 
 ###
