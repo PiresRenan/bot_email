@@ -53,7 +53,6 @@ class Email_getter:
                         #     sender_email = email_message['From']
                         #     print(sender_email)
             server.logout()
-            sleep(45)
             return True
         except Exception as e:
             print("Caiu nesta exceção! {}".format(e))
