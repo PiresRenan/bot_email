@@ -2,12 +2,14 @@ import re
 import email
 import base64
 from time import sleep
+import datetime
+import pytz
 
 import imapclient
 import urllib.parse
 from googletrans import Translator
 
-from mail_sender import Postman
+from .mail_sender import Postman
 
 from email.header import decode_header
 
@@ -17,6 +19,7 @@ class Email_getter:
         self.imap_server = 'outlook.office365.com'
         self.user = 'pedidoscandide@outlook.com'
         self.password = '13579Can'
+        self.obj_email = Postman()
 
     def email_catch(self) -> bool:
         try:
@@ -40,22 +43,58 @@ class Email_getter:
                             decoded_bytes = base64.b64decode(filename)
                             decoded_text = decoded_bytes.decode("utf-8")
                             translator = Translator()
-                            filename = translator.translate(decoded_text, src="pt", dest="pt").text
+                            filename = translator.translate(decoded_text, src="en", dest="pt").text
 
-                        sender_email = email_message['From']
-                        print(sender_email)
-                        # if filename.endswith(('.xlsx')):
-                        #     file_data = part.get_payload(decode=True)
-                        #     with open(f'./Pedidos/{filename}', 'wb') as f:
-                        #         f.write(file_data)
-                        #     server.move(uid, 'Absorvidos')
-                        # else:
-                        #     sender_email = email_message['From']
-                        #     print(sender_email)
+                        if filename.endswith(('.xlsx')):
+                            file_data = part.get_payload(decode=True)
+                            path_to_file = "./Erros/{}".format(filename)
+                            with open(path_to_file, 'wb') as f:
+                                f.write(file_data)
+                            server.move(uid, 'Absorvidos')
+                        else:
+                            sender_email = email_message['From']
+                            file_data = part.get_payload(decode=True)
+                            path_to_file = "./Erros/{}".format(filename)
+                            with open(path_to_file, 'wb') as f:
+                                f.write(file_data)
+                            server.move(uid, 'Formato')
+                            self.extension_err(sender=sender_email, err=path_to_file)
             server.logout()
             return True
         except Exception as e:
             print("Caiu nesta exceção! {}".format(e))
+            return False
 
-    def extension_err(self, sender):
-        pass
+    def extension_err(self, sender=None, err=None):
+        brasilia_tz = pytz.timezone('America/Sao_Paulo')
+        hora_atual = datetime.datetime.now(brasilia_tz)
+        hora_formatada = hora_atual.strftime('%H:%M')
+        data_formatada = hora_atual.strftime('%d/%m/%Y')
+        name_sender = sender.split("<")[0]
+        try:
+            name_sender = name_sender.replace("|", "")
+        except Exception as e:
+            pass
+        problem_maker = sender.split("<")[1].replace(">", "")
+        msg = """
+Olá, {} | <{}>!
+
+O pedido enviado às {} no dia {}, não pode ser absorvido de forma correta pelo motivo de: formato do arquivo inadequado.
+
+Solução: abra novamente o arquivo e o salve novamente como "Microsoft Excel Worksheet"(<nome do arquivo>.xlsx).
+Feito esta alteração, reenvie o arquivo com o formato correto para pedidoscandide@outlook.com .
+
+Atenciosamente,
+Renan Pires.
+        """.format(name_sender, problem_maker, hora_formatada, data_formatada)
+        # warning_group = [
+        #     "comercial@candide.com.br", "emerson.figueiredo@candide.com.br", "cleo@candide.com.br", "rosana@candide.com.br",
+        #     "wagner@candide.com.br", "luiz@candide.com.br", "marcelo@candide.com.br", "decio@candide.com.br",
+        #     "suporte@candide.com.br", "rogerio@candide.com.br", "suporte.renan@candide.com.br"
+        # ]
+        warning_group = ["suporte@candide.com.br", "suporte.renan@candide.com.br"]
+        assunto = "Erro de pedido: Formato invalido"
+        if err is not None:
+            self.obj_email.send_mail(recipient=problem_maker, copy_to=warning_group, subject=assunto, attach=err, content=msg)
+        else:
+            self.obj_email.send_mail(recipient=problem_maker, copy_to=warning_group, subject=assunto, content=msg)
