@@ -12,18 +12,27 @@ app = FastAPI()
 tasks = []
 
 
-@app.get("/")
+@app.get("/on")
 async def index():
     global tasks
     if not tasks:
         async def main_order():
             print("\nPedidos iniciado com sucesso!\n\n")
             while True:
-                print("Executando...")
-                getter_data = Salesprogram()
-                print(getter_data.get_data())
+                print("  --------------------------")
+                print("O programa foi iniciado")
+                principal = Salesprogram()
+                if principal.check_email():
+                    print("Arquivos enbcontrados e tratados")
+                else:
+                    print("Não foram encontrados emails.")
+
+                if len(principal.get_data_from_excel()) > 0:
+                    print("zsd~gfn")
+
+                print("  --------------------------")
                 print("\n")
-                await asyncio.sleep(1)
+                await asyncio.sleep(30)
 
         task = asyncio.create_task(main_order())
         tasks.append(task)
@@ -34,7 +43,7 @@ async def index():
         return json.dumps({"Resposta": "Tarefa foi reiniciada!"})
 
 
-@app.get("/test/")
+@app.get("/off")
 async def pause_task():
     global tasks
     if tasks:

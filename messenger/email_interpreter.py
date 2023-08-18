@@ -1,17 +1,12 @@
-import re
 import email
 import base64
-from time import sleep
 import datetime
 import pytz
 
 import imapclient
-import urllib.parse
 from googletrans import Translator
 
 from .mail_sender import Postman
-
-from email.header import decode_header
 
 
 class Email_getter:
@@ -46,11 +41,18 @@ class Email_getter:
                             filename = translator.translate(decoded_text, src="en", dest="pt").text
 
                         if filename.endswith(('.xlsx')):
+                            sender_email = email_message['From'].split(" <")[1].replace(">", "")
+                            print("Pedido recebido por {}".format(sender_email))
                             file_data = part.get_payload(decode=True)
-                            path_to_file = "./Erros/{}".format(filename)
-                            with open(path_to_file, 'wb') as f:
-                                f.write(file_data)
-                            server.move(uid, 'Absorvidos')
+                            path_to_file = "./Pedidos/{}".format(filename)
+                            try:
+                                print("O arquivo está sendo baixado...")
+                                with open(path_to_file, 'wb') as f:
+                                    f.write(file_data)
+                            except Exception as e:
+                                print("O arquivo não obteve êxito ao ser baixado por: {}".format(e))
+                                return False
+                            # server.move(uid, 'Absorvidos')
                         else:
                             sender_email = email_message['From']
                             file_data = part.get_payload(decode=True)
@@ -59,10 +61,11 @@ class Email_getter:
                                 f.write(file_data)
                             server.move(uid, 'Formato')
                             self.extension_err(sender=sender_email, err=path_to_file)
+                            return False
             server.logout()
             return True
         except Exception as e:
-            print("Caiu nesta exceção! {}".format(e))
+            print("Não pode conectar ao email. Motivo: {}".format(e))
             return False
 
     def extension_err(self, sender=None, err=None):

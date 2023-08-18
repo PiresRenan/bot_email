@@ -7,36 +7,27 @@ from messenger import Email_getter
 
 class Salesprogram:
 
-    def get_data(self):
-        if self.check_email():
-            self.format_data()
-            # self.clean_files()
-        return "Funcionando"
-
-    def check_email(self):
-        teste = Email_getter()
-        if teste.email_catch():
+    def check_email(self) -> bool:
+        self.clean_files()
+        obj_email = Email_getter()
+        if obj_email.email_catch():
             return True
         else:
             return False
 
-    def format_data(self):
-        print(self.search_for_files())
-        pass
+    def get_data_from_excel(self) -> list:
+        list_orders = []
+        files = os.listdir("Pedidos")
+        if len(files) > 0:
+            for file in files:
+                if file.endswith(".xlsx"):
+                    path_to_file = os.path.join(".Pedidos", file)
+                    list_orders.append(self.retrieve_data_from_excel(path_to_file))
+        print(list_orders)
+        return list_orders
 
-    def search_for_files(self):
-        path_to_file = "./Pedidos"
-        lista_pedidos_final = []
-
-        arquivos = os.listdir(path_to_file)
-        for arquivo in arquivos:
-            if arquivo.endswith('.xlsx'):
-                caminho_arquivo = os.path.join(path_to_file, arquivo)
-                lista_pedidos_final.append(self.get_data_xlsx(caminho_arquivo))
-
-        return lista_pedidos_final
-
-    def get_data_xlsx(self, path=None):
+    @staticmethod
+    def retrieve_data_from_excel(path):
         df = pd.read_excel(path)
         pedido_atual = {}
         flag = 0
@@ -53,10 +44,9 @@ class Salesprogram:
         return pedidos
 
     @staticmethod
-    def clean_files():
+    def clean_files() -> bool:
         path_to_file = ["./Erros", "./Pedidos"]
         for file in path_to_file:
-            print(file)
             for item in os.listdir(file):
                 item_path = os.path.join(file, item)
                 if os.path.isfile(item_path):
@@ -67,3 +57,4 @@ class Salesprogram:
                     except OSError:
                         import shutil
                         shutil.rmtree(item_path)
+        return True
