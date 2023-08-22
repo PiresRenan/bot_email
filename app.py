@@ -7,9 +7,13 @@ import asyncio
 
 from core import Salesprogram
 
-
 app = FastAPI()
 tasks = []
+
+
+@app.get("/")
+async def index():
+    return {"Response": "It's turned on!"}
 
 
 @app.get("/on")
@@ -26,9 +30,18 @@ async def index():
                     print("Arquivos enbcontrados e tratados")
                 else:
                     print("Não foram encontrados emails.")
-
-                if len(principal.get_data_from_excel()) > 0:
-                    print("zsd~gfn")
+                orders = principal.get_data_from_excel()
+                qtt_orders = len(orders)
+                if qtt_orders > 0:
+                    print("Existem {} pedidos a serem absorvidos.".format(len(principal.get_data_from_excel())))
+                    for idx, order in enumerate(orders):
+                        cnpj = ""
+                        try:
+                            cnpj = str(int(float(order[0]['Pedido'][0])))
+                        except Exception as e:
+                            print(e)
+                        data_raw = principal.format_json(eid_cliente=cnpj, ordem_de_compra_e_desconto=order[0]['Pedido'][1], lista_items=order[0]['Items'])
+                        print(data_raw)
 
                 print("  --------------------------")
                 print("\n")
@@ -36,11 +49,11 @@ async def index():
 
         task = asyncio.create_task(main_order())
         tasks.append(task)
-        return json.dumps({"Resposta": "Nova tarefa iniciada."})
+        return json.dumps({"Reponse": "New task was started."})
     else:
         tasks[0].cancel()
         tasks.pop()
-        return json.dumps({"Resposta": "Tarefa foi reiniciada!"})
+        return json.dumps({"Response": "The task was restarted!"})
 
 
 @app.get("/off")
