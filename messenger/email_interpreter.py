@@ -16,7 +16,8 @@ class Email_getter:
         self.password = '13579Can'
         self.obj_email = Postman()
 
-    def email_catch(self) -> bool:
+    def email_catch(self) -> str:
+        sender_email = ""
         try:
             server = imapclient.IMAPClient(self.imap_server, ssl=True)
             server.login(self.user, self.password)
@@ -41,8 +42,9 @@ class Email_getter:
                             filename = translator.translate(decoded_text, src="en", dest="pt").text
 
                         if filename.endswith(('.xlsx')):
-                            sender_email = email_message['From'].split(" <")[1].replace(">", "")
-                            print("Pedido recebido por {}".format(sender_email))
+                            sender_email = email_message['From']
+                            email_s = email_message['From'].split(" <")[1].replace(">", "")
+                            print("Pedido recebido por {}".format(email_s))
                             file_data = part.get_payload(decode=True)
                             path_to_file = "./Pedidos/{}".format(filename)
                             try:
@@ -51,7 +53,7 @@ class Email_getter:
                                     f.write(file_data)
                             except Exception as e:
                                 print("O arquivo não obteve êxito ao ser baixado por: {}".format(e))
-                                return False
+                                return sender_email
                             # server.move(uid, 'Absorvidos')
                         else:
                             sender_email = email_message['From']
@@ -61,12 +63,12 @@ class Email_getter:
                                 f.write(file_data)
                             server.move(uid, 'Formato')
                             self.extension_err(sender=sender_email, err=path_to_file)
-                            return False
+                            return sender_email
             server.logout()
-            return True
+            return sender_email
         except Exception as e:
             print("Não pode conectar ao email. Motivo: {}".format(e))
-            return False
+            return sender_email
 
     def extension_err(self, sender=None, err=None):
         brasilia_tz = pytz.timezone('America/Sao_Paulo')

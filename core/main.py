@@ -4,19 +4,20 @@ import math
 import openpyxl
 import pandas as pd
 
-from messenger import Email_getter
+from messenger import Email_getter, Postman
 from ns_api import NS_Services
 
 
 class Salesprogram:
 
-    def check_email(self) -> bool:
+    def check_email(self) -> str:
         self.clean_files()
         obj_email = Email_getter()
-        if obj_email.email_catch():
-            return True
+        result = obj_email.email_catch()
+        if result != "":
+            return result
         else:
-            return False
+            return ""
 
     def get_data_from_excel(self) -> list:
         list_orders = []
@@ -63,7 +64,11 @@ class Salesprogram:
         desconto = ""
         lista_items_formatada: list = []
         obj_api = NS_Services()
-        client_data = obj_api.retrieve_client_data(cnpj=eid_cliente)
+        try:
+            client_data = obj_api.retrieve_client_data(cnpj=eid_cliente)
+        except Exception as e:
+            print("Não pode recuperar os dados do CNPJ digitado, CNPJ: {}. Certifique-se se está digitado corretamente e/ou o cadastro está correto. Exceção capturada: {}".format(eid_cliente, e))
+
         # try:
         #     externalid_cliente = client_data[0]
         #     eid = {"externalid": externalid_cliente}
@@ -165,6 +170,9 @@ class Salesprogram:
         # payload.update({"item": {"items": lista_items_formatada}})
         #
         # return json.dumps(payload)
+
+    # def warning_error(self):
+
 
     @staticmethod
     def clean_files() -> bool:

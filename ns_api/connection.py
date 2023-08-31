@@ -27,7 +27,7 @@ class NS_Services:
         if http_mtd is None:
             http_mtd = "POST"
         if url is None:
-            url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000q"
+            url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
         if env == 1:
             consumer = oauth.Consumer(key=self.CONSUMER_ID, secret=self.CONSUMER_SECRET)
             token = oauth.Token(key=self.TOKEN_ID, secret=self.TOKEN_SECRET)
@@ -54,7 +54,15 @@ class NS_Services:
 
     def retrieve_client_data(self, cnpj=None):
         if cnpj is not None:
-            print("ola")
+            url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
+            data_raw = {
+                "q": f"SELECT custentity_cand_tipofrete_cli, custentity_acs_cfx_c_dfltpymntbnk_ls, custentity_acs_carteira, externalid, custentity_acs_transp_cli, terms "
+                     f"FROM customer "
+                     f"WHERE custentity_enl_cnpjcpf='{cnpj}'"
+            }
+            with requests.post(url=url, headers=self.build_header(env=1), json=data_raw) as r:
+                result = r.json()
+            return result
 
     def notificar_erro(self, info: dict, error_detail: str):
         objeto_criador_xlsx = order_filter.VerificarPedidos('./Erros')
