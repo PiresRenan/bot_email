@@ -60,6 +60,9 @@ class Salesprogram:
             df.to_excel(writer, index=False)
 
     def format_json(self, eid_cliente=None, ordem_de_compra_e_desconto=None, lista_items=None, memo=None):
+
+        err_send = Postman()
+
         payload = {}
         desconto = ""
         lista_items_formatada: list = []
@@ -68,15 +71,15 @@ class Salesprogram:
             client_data = obj_api.retrieve_client_data(cnpj=eid_cliente)
         except Exception as e:
             print("Não pode recuperar os dados do CNPJ digitado, CNPJ: {}. Certifique-se se está digitado corretamente e/ou o cadastro está correto. Exceção capturada: {}".format(eid_cliente, e))
-
-        # try:
-        #     externalid_cliente = client_data[0]
-        #     eid = {"externalid": externalid_cliente}
-        #     cliente = {"entity": eid}
-        #     payload.update(cliente)
-        # except Exception as e:
-        #     pass
-        #
+            err_send.send_mail()
+        try:
+            externalid_cliente = client_data['items'][0]['externalid']
+            eid = {"externalid": externalid_cliente}
+            cliente = {"entity": eid}
+            payload.update(cliente)
+        except Exception as e:
+            pass
+        print(payload)
         # if ordem_de_compra_e_desconto != "":
         #
         #     try:

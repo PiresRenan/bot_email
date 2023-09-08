@@ -22,7 +22,7 @@ class Postman:
             # recipient = "comercial@candide.com.br"
 
         if copy_to is None:
-            # copy_to = ["suporte@candide.com.br, rogerio@candide.com.br, suporte.renan@candide.com.br"]
+            # copy_to = ["comercial@candide.com.br", "suporte@candide.com.br, rogerio@candide.com.br, suporte.renan@candide.com.br"]
             copy_to = ["suporte.renan@candide.com.br"]
 
         if subject is None:

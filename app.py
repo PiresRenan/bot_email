@@ -41,6 +41,7 @@ async def index():
                     print("Email foi verificado com sucesso!")
                 else:
                     print("O email não obteve êxito ao ser verificado. Investigue causa.")
+                email_sender = ""
                 end_time_email = datetime.datetime.now()
                 orders = principal.get_data_from_excel()
                 qtt_orders = len(orders)
@@ -52,7 +53,6 @@ async def index():
                             cnpj = str(int(float(order[0]['Pedido'][0])))
                         except Exception as e:
                             print(e)
-                        print(cnpj)
                         data_raw = principal.format_json(eid_cliente=cnpj, ordem_de_compra_e_desconto=order[0]['Pedido'][1], lista_items=order[0]['Items'])
                 else:
                     print("Não existem emails novos. Aguarde {} segundos até que seja executado novamente.".format(INTERVALO))

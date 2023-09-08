@@ -17,7 +17,7 @@ class Email_getter:
         self.obj_email = Postman()
 
     def email_catch(self) -> str:
-        sender_email = ""
+        captured_data = []
         try:
             server = imapclient.IMAPClient(self.imap_server, ssl=True)
             server.login(self.user, self.password)
@@ -44,6 +44,7 @@ class Email_getter:
                         if filename.endswith(('.xlsx')):
                             sender_email = email_message['From']
                             email_s = email_message['From'].split(" <")[1].replace(">", "")
+                            email_data = {}
                             print("Pedido recebido por {}".format(email_s))
                             file_data = part.get_payload(decode=True)
                             path_to_file = "./Pedidos/{}".format(filename)
@@ -53,9 +54,11 @@ class Email_getter:
                                     f.write(file_data)
                             except Exception as e:
                                 print("O arquivo não obteve êxito ao ser baixado por: {}".format(e))
-                                return sender_email
                             # server.move(uid, 'Absorvidos')
+                        elif filename.endswith(('.jpg')) or filename.endswith(('.png')) or filename.endswith(('.jpeg')) or filename.endswith(('.gif')):
+                            pass
                         else:
+                            print("O arquivo {} não possui o formato compbinado, certifique-se de cumprir os requisitos necessários.".format(filename))
                             sender_email = email_message['From']
                             file_data = part.get_payload(decode=True)
                             path_to_file = "./Erros/{}".format(filename)
@@ -63,7 +66,6 @@ class Email_getter:
                                 f.write(file_data)
                             server.move(uid, 'Formato')
                             self.extension_err(sender=sender_email, err=path_to_file)
-                            return sender_email
             server.logout()
             return sender_email
         except Exception as e:
