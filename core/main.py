@@ -1,3 +1,4 @@
+import datetime
 import os
 import json
 import math
@@ -56,22 +57,37 @@ class Salesprogram:
         data = [(cnpj, ordem_de_compra)] + items
         df = pd.DataFrame(data, columns=["CNPJ/SKU", "ORDEM DE COMPRA/QUANTIDADE"])
 
-        with pd.ExcelWriter(f'./Erros/erro{cnpj}.xlsx', engine='xlsxwriter') as writer:
+        with pd.ExcelWriter(f'./Erros/erro_no_pedido_{cnpj}.xlsx', engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False)
 
-    def format_json(self, eid_cliente=None, ordem_de_compra_e_desconto=None, lista_items=None, memo=None):
-
+    def format_json(self, eid_cliente=None, ordem_de_compra_e_desconto=None, lista_items=None, memo=None, order_marker=None, name_order_maker=None):
         err_send = Postman()
-
+        print(order_marker)
+        print(name_order_maker)
         payload = {}
         desconto = ""
         lista_items_formatada: list = []
         obj_api = NS_Services()
         try:
             client_data = obj_api.retrieve_client_data(cnpj=eid_cliente)
+            print(client_data)
         except Exception as e:
             print("Não pode recuperar os dados do CNPJ digitado, CNPJ: {}. Certifique-se se está digitado corretamente e/ou o cadastro está correto. Exceção capturada: {}".format(eid_cliente, e))
-            err_send.send_mail()
+            self.create_xlsx(cnpj=eid_cliente, ordem_de_compra=ordem_de_compra_e_desconto, lista_items=lista_items)
+            now = datetime.datetime.now()
+            time_now = now.strftime("%d/%m/%Y às %H:%M:%S")
+            corpo_email = """
+O pedido inserido {}, por {} <{}>, não pode ser absorvido.
+O motivo: CNPJ digitado no corpo do arquivo não foi encontrado nos registros do Oracle NetSuite da Candide Industria e Comercio ltda., certifique-se de ter digitado corretamente, ou se o cliente desejado foi previamente cadastrado no sistema.
+
+No caso do CNPJ não estar registrado, entre em contato com o setor de cadastros através do endereço cadastro@candide.com.br.
+Caso existam irregularidades com o CNPJ, entre em contato com comercial@candide.com.br.
+
+Atensiosamente,
+Candide Industria e Comércio ltda.
+            """.format(time_now, name_order_maker, order_marker)
+            err_send.send_mail(recipient=order_marker, subject="CNPJ para o pedido inválido.", attach='./Erros/erro_no_pedido_{}.xlsx'.format(eid_cliente))
+
         try:
             externalid_cliente = client_data['items'][0]['externalid']
             eid = {"externalid": externalid_cliente}
