@@ -2,7 +2,7 @@ import json
 import re
 
 import requests
-from time import time
+from time import time, sleep
 import oauth2 as oauth
 
 from .sign_sha256 import SignatureMethod_HMAC_SHA256
@@ -58,11 +58,48 @@ class NS_Services:
             data_raw = {
                 "q": f"SELECT custentity_cand_tipofrete_cli, custentity_acs_cfx_c_dfltpymntbnk_ls, custentity_acs_carteira, externalid, custentity_acs_transp_cli, terms "
                      f"FROM customer "
-                     f"WHERE custentity_enl_cnpjcpf LIKE '%{cnpj}%'"
+                     f"WHERE custentity_enl_cnpjcpf = '{cnpj}'"
             }
             with requests.post(url=url, headers=self.build_header(env=1), json=data_raw) as r:
                 result = r.json()
             return result
+
+    def retrieve_client_data_retry(self, cnpj=None):
+        if len(cnpj) < 14:
+            cnpj = cnpj.zfill(14)
+        elif len(cnpj) > 14:
+            cnpj = cnpj[:14]
+        url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
+        data_raw = {
+            "q": f"SELECT custentity_cand_tipofrete_cli, custentity_acs_cfx_c_dfltpymntbnk_ls, custentity_acs_carteira, externalid, custentity_acs_transp_cli, terms "
+                 f"FROM customer "
+                 f"WHERE custentity_enl_cnpjcpf='{cnpj}'"
+        }
+        with requests.post(url=url, headers=self.build_header(env=1), json=data_raw) as r:
+            result = r.json()
+        return result
+
+    def retrieve_client_data_last_try(self, cnpj=None):
+        if cnpj is not None:
+            url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
+            data_raw = {
+                "q": f"SELECT custentity_cand_tipofrete_cli, custentity_acs_cfx_c_dfltpymntbnk_ls, custentity_acs_carteira, externalid, custentity_acs_transp_cli, terms "
+                     f"FROM customer "
+                     f"WHERE custentity_enl_cnpjcpf LIKE %'{cnpj}'%"
+            }
+            with requests.post(url=url, headers=self.build_header(env=1), json=data_raw) as r:
+                result = r.json()
+            return result
+
+    def get_price(self, eid=None):
+        url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
+        data_raw = {
+            "q": f"SELECT custitem13 FROM item WHERE upccode='{eid}'"
+        }
+        with requests.post(url=url, headers=self.build_header(env=1), json=data_raw) as r:
+            result = r.json()
+        price = result['items'][0]['custitem13']
+        return price
 
     def notificar_erro(self, info: dict, error_detail: str):
         objeto_criador_xlsx = order_filter.VerificarPedidos('./Erros')
@@ -122,18 +159,9 @@ class NS_Services:
             return False
 
     def insert_order(self, data_raw) -> bool:
-        _url = "https://7586908-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/salesorder"
-        result = self.get_results("POST", _url, data_raw)
-        try:
-            erro = result.json()
-            if result.status_code != 204:
-                resultado_final = self.capturar_erros(erro, data_raw)
-                if resultado_final:
-                    return True
-                else:
-                    return False
-        except:
-            return True
+        _url = "https://7586908.suitetalk.api.netsuite.com/services/rest/record/v1/salesorder"
+        response = requests.request("POST", _url, headers=self.build_header(env=1, url=_url), data=data_raw)
+        return response
 
     def search_response(self, cod):
         data_raw = {

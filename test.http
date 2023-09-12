@@ -1,9 +1,9 @@
-GET http://localhost:8000/
+GET http://localhost:8000/on
 Accept: application/json
 
 ###
 
-GET http://localhost:8000/test/
+GET http://localhost:8000/off
 Accept: application/json
 
 ###
