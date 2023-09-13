@@ -37,10 +37,10 @@ class Email_getter:
 
                         if filename.startswith("=?UTF-8"):
                             filename = filename.split("?")[3]
-                            decoded_bytes = base64.b64decode(filename)
-                            decoded_text = decoded_bytes.decode("utf-8")
+                            filename = filename.replace('=20', "")
+                            filename = filename.encode('UTF-8')
                             translator = Translator()
-                            filename = translator.translate(decoded_text, src="en", dest="pt").text
+                            filename = translator.translate(filename.decode('UTF-8'), src="en", dest="pt").text
 
                         if filename.endswith(('.xlsx')):
                             sender_email.append(email_message['From'])

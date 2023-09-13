@@ -1,6 +1,8 @@
 
 import json
 import datetime
+from time import sleep
+
 import pytz
 import re
 
@@ -70,10 +72,27 @@ async def index():
                             print(" 2.1.0 - O campo do CNPJ não está correto. Motivo: ".format(e))
 
                         data_raw = principal.format_json(eid_cliente=cnpj, ordem_de_compra_e_desconto=order[0]['Pedido'][1], lista_items=order[0]['Items'], order_marker=email_sender[idx], name_order_maker=email_sender_name[idx])
+                        if data_raw != 0:
+                            if data_raw['inactive_items']:
+                                itens_inactive = data_raw['inactive_items']
+                                del data_raw['inactive_items']
+                                principal.order_with_inactive_items(json_to_absorve=data_raw,
+                                                                    itens_inativo=itens_inactive,
+                                                                    order_maker=email_sender[idx],
+                                                                    order_maker_name=email_sender_name[idx])
+                                print(" 2.3.12 - Existem itens inativos no pedido, será tomado as medidas necessárias.")
+                                sleep(60)
+                            # try:
+                            #     itens_inactive = data_raw['inactive_items']
+                            #     del data_raw['inactive_items']
+                            #     principal.order_with_inactive_items(json_to_absorve=data_raw, itens_inativo=itens_inactive, order_maker=email_sender[idx], order_maker_name=email_sender_name[idx])
+                            #     print(" 2.3.12 - Existem itens inativos no pedido, será tomado as medidas necessárias.")
+                            # except Exception as e:
+                            #     print(" 2.3.12 - Não existem itens inativo. O pedido será absorvido a seguir.")
 
-                        principal.send_order(json_to_insert=data_raw, order_marker=email_sender[idx], name_order_maker=email_sender_name[idx])
-                        # print(" 2.3.0 [Error] - Erro ao inserir o pedido. Erro: {}".format(e))
-                        print(" - #***#***#***#***#***#***#***#***#***# - ")
+                            # principal.send_order(json_to_insert=data_raw, order_marker=email_sender[idx], name_order_maker=email_sender_name[idx])
+                            # print(" 2.3.0 [Error] - Erro ao inserir o pedido. Erro: {}".format(e))
+                            print(" - #***#***#***#***#***#***#***#***#***# - ")
                     end_time_data_adm = datetime.datetime.now()
                 else:
                     print(" 1.2.0 - Não existem emails novos. Aguarde {} segundos até que seja executado novamente.".format(INTERVALO))
