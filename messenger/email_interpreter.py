@@ -53,7 +53,7 @@ class Email_getter:
                                 with open(path_to_file, 'wb') as f:
                                     f.write(file_data)
                             except Exception as e:
-                                print(" 1.0.3 - O arquivo não obteve êxito ao ser baixado por: {}".format(e))
+                                print(" 1.0.3 - O arquivo não obteve êxito ao ser b aixado por: {}".format(e))
                             # server.move(uid, 'Absorvidos')
                         elif filename.endswith(('.jpg')) or filename.endswith(('.png')) or filename.endswith(('.jpeg')) or filename.endswith(('.gif')):
                             pass

@@ -1,4 +1,3 @@
-
 import json
 import datetime
 from time import sleep
@@ -54,10 +53,11 @@ async def index():
                 orders = principal.get_data_from_excel()
                 qtt_orders = len(orders)
                 if qtt_orders > 0:
-                    print(" 1.2.0 - Existem {} pedidos a serem absorvidos.".format(len(principal.get_data_from_excel())))
+                    print(
+                        " 1.2.0 - Existem {} pedidos a serem absorvidos.".format(len(principal.get_data_from_excel())))
                     print(" 2.0.0 - Inicio da recuperação de dados e formatação do json.")
-                    start_time_data_adm = datetime.datetime.now()
                     for idx, order in enumerate(orders):
+                        start_time_data_adm = datetime.datetime.now()
                         cnpj = ""
                         print()
                         print(" - #***#***#***#***#***#***#***#***#***# - ")
@@ -66,45 +66,52 @@ async def index():
                             if raw_cnpj.endswith(".0"):
                                 raw_cnpj = raw_cnpj.replace(".0", "")
                             cnpj = re.sub(r'[^0-9]', '', raw_cnpj)
-                            print(" 2.1.0 - Pedido {} de {}, (CNPJ: {}) em processo de recuperação de dados. Aguarde.".format((idx+1), qtt_orders, cnpj))
+                            print(
+                                " 2.1.0 - Pedido {} de {}, (CNPJ: {}) em processo de recuperação de dados. Aguarde.".format(
+                                    (idx + 1), qtt_orders, cnpj))
+                            data_raw = principal.format_json(eid_cliente=cnpj,
+                                                             ordem_de_compra_e_desconto=order[0]['Pedido'][1],
+                                                             lista_items=order[0]['Items'],
+                                                             order_marker=email_sender[idx],
+                                                             name_order_maker=email_sender_name[idx])
+
+                            if data_raw is not 0:
+                                if data_raw['inactive_items']:
+                                    itens_inactive = data_raw['inactive_items']
+                                    del data_raw['inactive_items']
+                                    print(
+                                        " 2.3.12 - Existem itens inativos no pedido, será tomado as medidas necessárias.")
+                                    if principal.order_with_inactive_items(json_to_absorve=data_raw,
+                                                                           itens_inativo=itens_inactive,
+                                                                           order_maker=email_sender[idx],
+                                                                           order_maker_name=email_sender_name[idx]):
+                                        print(" 2.3.14 - Aviso de itens inativos foi tratado e enviado com sucesso.")
+                                else:
+                                    print(" 2.3.12 - Não existem itens inativo. O pedido seguirá para a absorção.")
+
                         except Exception as e:
                             cnpj = "Campo invalido"
                             print(" 2.1.0 - O campo do CNPJ não está correto. Motivo: ".format(e))
 
-                        data_raw = principal.format_json(eid_cliente=cnpj, ordem_de_compra_e_desconto=order[0]['Pedido'][1], lista_items=order[0]['Items'], order_marker=email_sender[idx], name_order_maker=email_sender_name[idx])
-                        if data_raw != 0:
-                            if data_raw['inactive_items']:
-                                itens_inactive = data_raw['inactive_items']
-                                del data_raw['inactive_items']
-                                principal.order_with_inactive_items(json_to_absorve=data_raw,
-                                                                    itens_inativo=itens_inactive,
-                                                                    order_maker=email_sender[idx],
-                                                                    order_maker_name=email_sender_name[idx])
-                                print(" 2.3.12 - Existem itens inativos no pedido, será tomado as medidas necessárias.")
-                                sleep(60)
-                            # try:
-                            #     itens_inactive = data_raw['inactive_items']
-                            #     del data_raw['inactive_items']
-                            #     principal.order_with_inactive_items(json_to_absorve=data_raw, itens_inativo=itens_inactive, order_maker=email_sender[idx], order_maker_name=email_sender_name[idx])
-                            #     print(" 2.3.12 - Existem itens inativos no pedido, será tomado as medidas necessárias.")
-                            # except Exception as e:
-                            #     print(" 2.3.12 - Não existem itens inativo. O pedido será absorvido a seguir.")
+                        end_time_data_adm = datetime.datetime.now()
 
-                            # principal.send_order(json_to_insert=data_raw, order_marker=email_sender[idx], name_order_maker=email_sender_name[idx])
-                            # print(" 2.3.0 [Error] - Erro ao inserir o pedido. Erro: {}".format(e))
-                            print(" - #***#***#***#***#***#***#***#***#***# - ")
-                    end_time_data_adm = datetime.datetime.now()
+                    print(" - #***#***#***#***#***#***#***#***#***# - ")
+                    principal.clean_files()
                 else:
-                    print(" 1.2.0 - Não existem emails novos. Aguarde {} segundos até que seja executado novamente.".format(INTERVALO))
+                    print(
+                        " 1.2.0 - Não existem emails novos. Aguarde {} segundos até que seja executado novamente.".format(
+                            INTERVALO))
                 end_time = datetime.datetime.now()
 
                 total_time = end_time - start_time
                 email_total_time = end_time_email - start_time_email
-                percent_email = (email_total_time.total_seconds()/total_time.total_seconds()) * 100
+                percent_email = (email_total_time.total_seconds() / total_time.total_seconds()) * 100
                 print(" END - O tempo total de execução foi de: {:.3f} segundos.".format(total_time.total_seconds()))
                 print(
-                    " END - O tempo gasto na verificação de emails foi de: {:.3f} segundos.".format(email_total_time.total_seconds()))
-                print(" END - Porcentagem de tempo gasto na verificação de emails: {:.2f}% do tempo total.".format(percent_email))
+                    " END - O tempo gasto na verificação de emails foi de: {:.3f} segundos.".format(
+                        email_total_time.total_seconds()))
+                print(" END - Porcentagem de tempo gasto na verificação de emails: {:.2f}% do tempo total.".format(
+                    percent_email))
                 print("  --------------------------")
                 print("\n")
                 await asyncio.sleep(INTERVALO)

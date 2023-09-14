@@ -50,7 +50,7 @@ class Salesprogram:
         return pedidos
 
     @staticmethod
-    def create_xlsx(cnpj=None, ordem_de_compra=None, lista_items=None):
+    def create_xlsx(cnpj=None, ordem_de_compra=None, lista_items=None) -> str:
         items = []
         for i in lista_items:
             item = (i['item']['externalId'], i['quantity'])
@@ -59,6 +59,8 @@ class Salesprogram:
             df = pd.DataFrame(data, columns=["CNPJ/SKU", "ORDEM DE COMPRA/QUANTIDADE"])
             with pd.ExcelWriter(f'./Erros/erro{cnpj}.xlsx', engine='xlsxwriter') as writer:
                 df.to_excel(writer, index=False)
+        arc_name = f'./Erros/erro{cnpj}.xlsx'
+        return arc_name
 
     def recover_client_data(self, eid_cliente=None, order_marker=None, name_order_maker=None, ordem_de_compra_e_desconto=None, lista_items=None):
         obj_api = NS_Services()
@@ -200,7 +202,7 @@ class Salesprogram:
                 pass
             if len(inactive_items) > 0:
                 payload.update({"inactive_items": inactive_items})
-            # print(" 2.3.11 - O json final é : \n{}".format(json.dumps(payload)))
+            print(" 2.3.11 - O json final é : \n{}".format(json.dumps(payload)))
             return payload
         else:
             return 0
@@ -229,6 +231,7 @@ class Salesprogram:
             str_itens = ""
             if len(itens_inativo) == 1:
                 str_itens = itens_inativo[0]
+                print(str_itens)
             else:
                 for i, item in enumerate(itens_inativo):
                     str_itens += item
@@ -237,19 +240,23 @@ class Salesprogram:
             cnpj = json_to_absorve['entity']['externalid']
             ordem_compra = json_to_absorve['otherrefnum']
             list_item = json_to_absorve['item']['items']
-            print(cnpj)
-            self.create_xlsx(cnpj, ordem_compra, list_item)
-            archive_name = f'./Erros/erro_no_pedido_{cnpj}.xlsx'
+            arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
+            non_itens = self.get_inactive_itens_list()
             conteudo = """
 Olá {},
 o pedido enviado no dia {}, não foi absorvido com êxito.
 
-Os itens {} não estão disponiveis. Confira com o setor responsável(comercial@candide.com.br) e tome as medidas devidas enquanto a estes e então reencaminhe para pedidoscandide@outlook.com
+Os itens [{}] não estão disponiveis. Confira com o setor responsável(comercial@candide.com.br) e tome as medidas devidas enquanto a estes e então reencaminhe novamente o pedido para pedidoscandide@outlook.com.
+
+Segue a lista completa de itens inativos:
+{}
 
 Atenciosamente,
 Candide Industria e Comercio ltda
-            """.format(order_maker_name, time_now, str_itens)
-            # err_alert.send_mail(recipient=order_maker, subject="Pedido não inserido, item inativo", attach=archive_name, content=conteudo)
+            """.format(order_maker_name, time_now, str_itens, non_itens)
+            err_alert.send_mail(recipient=order_maker, subject="Pedido não inserido, item inativo", attach=arch_name, content=conteudo)
+            print(" 2.3.13 - Alerta criado e enviado com sucesso para os emails de cópia padrão e {}".format(order_maker))
+            return True
 
     def send_order(self, json_to_insert=None, order_marker=None, name_order_maker=None) -> bool:
         obj_api = NS_Services()
@@ -282,6 +289,10 @@ Candide Industria e Comercio ltda.
             elif res != "":
                 print(res)
         return True
+
+    def get_inactive_itens_list(self) -> str:
+        obj_api = NS_Services()
+        return obj_api.all_inactive_itens()
 
     def calculate_total_of_order(self, values=None):
         total = 0.0

@@ -91,6 +91,22 @@ class NS_Services:
                 result = r.json()
             return result
 
+    def all_inactive_itens(self) -> str:
+        url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
+        data_raw = {
+            "q": f"SELECT upccode FROM item WHERE isinactive='T'"
+        }
+        with requests.post(url=url, headers=self.build_header(env=1), json=data_raw) as r:
+            result = r.json()
+        itens = result['items']
+        filtered_items = []
+        for item in itens:
+            upccode = item.get('upccode', '')
+            if not upccode.startswith('C') and upccode.isdigit():
+                filtered_items.append(int(upccode))
+        final_str = '\n'.join(map(str, filtered_items))
+        return final_str
+
     def get_price(self, eid=None):
         url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
         data_raw = {
