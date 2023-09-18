@@ -16,6 +16,12 @@ class Salesprogram:
             self.clean_files()
         except Exception as e:
             print(" 1.0.1 - Não foi necessário limpar as pastas.")
+            if not os.path.exists("Erros"):
+                os.mkdir("Erros")
+                print(" 1.0.1 [Contenção de erros] - A pasta 'Erros' foi criada.")
+            if not os.path.exists("Pedidos"):
+                os.mkdir("Pedidos")
+                print(" 1.0.1 [Contenção de erros] - A pasta 'Pedidos' foi criada.")
         obj_email = email_interpreter.Email_getter()
         result = obj_email.email_catch()
         if result != "":
