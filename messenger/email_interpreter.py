@@ -20,6 +20,7 @@ class Email_getter:
         captured_data = []
         sender_email = []
         try:
+            print("asdkjbgiasdfn")
             server = imapclient.IMAPClient(self.imap_server, ssl=True)
             print("Funciona {}".format(server))
             server.login(self.user, self.password)
