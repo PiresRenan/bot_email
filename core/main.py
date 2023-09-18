@@ -12,6 +12,7 @@ from ns_api import connection
 class Salesprogram:
 
     def check_email(self) -> str:
+        print("Até aqui")
         self.clean_files()
         obj_email = email_interpreter.Email_getter()
         result = obj_email.email_catch()
