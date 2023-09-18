@@ -22,8 +22,8 @@ async def index():
 @app.get("/on")
 async def index():
     global tasks
-    # INTERVALO = 240
-    INTERVALO = 10
+    INTERVALO = 60
+    # INTERVALO = 10
     fuso_horario_brasilia = pytz.timezone('America/Sao_Paulo')
     if not tasks:
         async def main_order():
@@ -75,9 +75,9 @@ async def index():
                                                              order_marker=email_sender[idx],
                                                              name_order_maker=email_sender_name[idx])
 
-                            if data_raw is not 0:
+                            if data_raw != 0:
                                 non_itens = data_raw.get('inactive_items', 'N/D')
-                                if non_itens is not 'N/D':
+                                if non_itens != 'N/D':
                                     itens_inactive = non_itens
                                     del data_raw['inactive_items']
                                     print(
