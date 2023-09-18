@@ -8,7 +8,7 @@ import re
 from fastapi import FastAPI
 import asyncio
 
-from core import Salesprogram
+from core import main
 
 app = FastAPI()
 tasks = []
@@ -28,6 +28,7 @@ async def index():
     if not tasks:
         async def main_order():
             print("\n 0.0.0 - Pedidos iniciado com sucesso!\n\n")
+            principal = main.Salesprogram()
             while True:
                 start_time = datetime.datetime.now()
                 print("  --------------------------")
@@ -36,7 +37,6 @@ async def index():
                 formatted_timer = now.strftime(formato)
                 print(" 0.1.0 - A verificação periódica iniciou! Aguarde os processos subsequentes.")
                 print(" 0.2.0 - Executando em: {}.".format(formatted_timer))
-                principal = Salesprogram()
                 start_time_email = datetime.datetime.now()
                 print(" 1.0.0 - Iniciou o processo de checagem de email. Aguarde.")
                 email = principal.check_email()

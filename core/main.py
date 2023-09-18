@@ -2,9 +2,7 @@ import datetime
 import os
 import json
 import math
-from time import sleep
 
-import openpyxl
 import pandas as pd
 
 from messenger import Email_getter, Postman
