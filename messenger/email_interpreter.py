@@ -21,6 +21,7 @@ class Email_getter:
         sender_email = []
         try:
             server = imapclient.IMAPClient(self.imap_server, ssl=True)
+            print("Funciona {}".format(server))
             server.login(self.user, self.password)
             inbox_folder = 'INBOX'
             server.select_folder(inbox_folder)
@@ -96,13 +97,9 @@ altere o nome do arquivo de maneira simples e caso o erro persista, tente enviar
 Atenciosamente,
 Candide Industria e Comercio ltda.
         """.format(name_sender, problem_maker, hora_formatada, data_formatada)
-        # warning_group = [
-        #     "comercial@candide.com.br", "wagner@candide.com.br", "luiz@candide.com.br", "marcelo@candide.com.br",
-        #     "suporte@candide.com.br", "rogerio@candide.com.br", "suporte.renan@candide.com.br"
-        # ]
         warning_group = ["suporte@candide.com.br", "suporte.renan@candide.com.br"]
         assunto = "Erro de pedido via automatica: Formato invalido"
         if err is not None:
-            self.obj_email.send_mail(recipient=problem_maker, copy_to=warning_group, subject=assunto, attach=err, content=msg)
+            self.obj_email.send_mail(recipient=problem_maker, subject=assunto, attach=err, content=msg)
         else:
-            self.obj_email.send_mail(recipient=problem_maker, copy_to=warning_group, subject=assunto, content=msg)
+            self.obj_email.send_mail(recipient=problem_maker, subject=assunto, content=msg)
