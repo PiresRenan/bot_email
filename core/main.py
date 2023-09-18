@@ -284,11 +284,29 @@ O pedido tem valor aproximado de {} (impostos e preços personalizados não incl
 Atensiosamente,
 Candide Industria e Comercio ltda. 
                 """.format(name_order_maker, total_order)
-                # self.create_xlsx()
-                # err_send.send_mail(recipient=order_marker, subject="Saldo do cliente abaixo do total do pedido.", )
+                cnpj = json_['entity']['externalid']
+                ordem_compra = json_['otherrefnum']
+                list_item = json_['item']['items']
+                arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
+                err_send.send_mail(recipient=order_marker, subject="Saldo do cliente abaixo do total do pedido.", attach=arch_name, content=email_content)
             elif res != "":
                 print(res)
-        return True
+            return True
+        elif response.status_code == 204:
+            now = datetime.datetime.now()
+            time_now = now.strftime("%d/%m/%Y às %H:%M:%S")
+            email_content = """
+Olá, {}
+O pedido feito no dia {}, foi inserido com êxito.
+
+Confira no sistema NetSuite na barra de funções deixe o ponteiro do mouse sobre "Clientes", então entre as opções deixe o ponteiro do mouse sobre "Transações" e então clique em "Pedidos de vendas", fazendo isto aparecerá todos os pedidos que foram feitos e vinculados ao seu código de representante.
+
+Atensiosamente,
+Candide Industria e Comercio ltda. 
+                            """.format(name_order_maker, time_now)
+            insert_warning = Postman()
+            insert_warning.send_mail(recipient=order_marker, subject="Pedido inserido com sucesso.", content=email_content)
+            return True
 
     def get_inactive_itens_list(self) -> str:
         obj_api = NS_Services()

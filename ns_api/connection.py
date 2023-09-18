@@ -130,8 +130,9 @@ class NS_Services:
         else:
             return True
 
-    def insert_order(self, data_raw) -> bool:
+    def insert_order(self, data_raw=None):
         _url = "https://7586908.suitetalk.api.netsuite.com/services/rest/record/v1/salesorder"
+        data_raw = json.dumps(data_raw)
         response = requests.request("POST", _url, headers=self.build_header(env=1, url=_url), data=data_raw)
         return response
 
