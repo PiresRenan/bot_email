@@ -5,15 +5,15 @@ import math
 
 import pandas as pd
 
-from messenger import Email_getter, Postman
-from ns_api import NS_Services
+from messenger import mail_sender, email_interpreter
+from ns_api import connection
 
 
 class Salesprogram:
 
     def check_email(self) -> str:
         self.clean_files()
-        obj_email = Email_getter()
+        obj_email = email_interpreter.Email_getter()
         result = obj_email.email_catch()
         if result != "":
             return result
@@ -61,8 +61,8 @@ class Salesprogram:
         return arc_name
 
     def recover_client_data(self, eid_cliente=None, order_marker=None, name_order_maker=None, ordem_de_compra_e_desconto=None, lista_items=None):
-        obj_api = NS_Services()
-        err_send = Postman()
+        obj_api = connection.NS_Services()
+        err_send = mail_sender.Postman()
         try:
             client_data = obj_api.retrieve_client_data(cnpj=eid_cliente)
             if client_data['count'] == 0:
@@ -95,8 +95,8 @@ class Salesprogram:
     def format_json(self, eid_cliente=None, ordem_de_compra_e_desconto=None, lista_items=None, memo=None,
                     order_marker=None, name_order_maker=None):
         global client_data
-        err_send = Postman()
-        obj_api = NS_Services()
+        err_send = mail_sender.Postman()
+        obj_api = connection.NS_Services()
         inactive_items = []
         payload = {}
         desconto = ""
@@ -223,7 +223,7 @@ class Salesprogram:
 
     def order_with_inactive_items(self, json_to_absorve=None, itens_inativo=None, order_maker=None, order_maker_name=None):
         if json_to_absorve is not None:
-            err_alert = Postman()
+            err_alert = mail_sender.Postman()
             now = datetime.datetime.now()
             time_now = now.strftime("%d/%m/%Y às %H:%M:%S")
             str_itens = ""
@@ -257,10 +257,10 @@ Candide Industria e Comercio ltda
             return True
 
     def send_order(self, json_to_insert=None, order_marker=None, name_order_maker=None) -> bool:
-        obj_api = NS_Services()
+        obj_api = connection.NS_Services()
         response = obj_api.insert_order(data_raw=json_to_insert)
         if response.status_code == 400:
-            err_send = Postman()
+            err_send = mail_sender.Postman()
             r = response.json()
             res = r['o:errorDetails'][0]['detail']
             if res.endswith('Saldo do cliente ultrapassa limite de crédito.'):
@@ -308,13 +308,13 @@ Confira no sistema NetSuite na barra de funções deixe o ponteiro do mouse sobr
 Atensiosamente,
 Candide Industria e Comercio ltda. 
                             """.format(name_order_maker, time_now)
-            insert_warning = Postman()
+            insert_warning = mail_sender.Postman()
             insert_warning.send_mail(recipient=order_marker, subject="Pedido inserido com sucesso.", content=email_content)
             print(" 2.3.13 - Pedido inserido com sucesso!")
             return True
 
     def get_inactive_itens_list(self) -> str:
-        obj_api = NS_Services()
+        obj_api = connection.NS_Services()
         return obj_api.all_inactive_itens()
 
     def calculate_total_of_order(self, values=None):
@@ -325,7 +325,7 @@ Candide Industria e Comercio ltda.
 
     def consulting_isinactive(self, upccode=None) -> bool:
         if upccode is not None:
-            obj_api = NS_Services()
+            obj_api = connection.NS_Services()
             if obj_api.is_inactive(upccode):
                 return True
             else:
