@@ -47,7 +47,7 @@ class Salesprogram:
         flag = 0
         pedidos: list = []
         for idx, row in df.iterrows():
-            cnpj_sku, ordem_quantidade = str(row[0]), row[1]
+            cnpj_sku, ordem_quantidade = str(row.iloc[0]), row.iloc[1]
             if len(str(cnpj_sku)) > 6:
                 flag += 1
                 pedido_atual = {"Pedido": [cnpj_sku, ordem_quantidade], "Items": []}
@@ -65,8 +65,11 @@ class Salesprogram:
             items.append(item)
             data = [(cnpj, ordem_de_compra)] + items
             df = pd.DataFrame(data, columns=["CNPJ/SKU", "ORDEM DE COMPRA/QUANTIDADE"])
-            with pd.ExcelWriter(f'./Erros/erro{cnpj}.xlsx', engine='xlsxwriter') as writer:
-                df.to_excel(writer, index=False)
+            try:
+                with pd.ExcelWriter(f'./Erros/erro{cnpj}.xlsx', engine='xlsxwriter') as writer:
+                    df.to_excel(writer, index=False)
+            except Exception as e:
+                print(e)
         arc_name = f'./Erros/erro{cnpj}.xlsx'
         return arc_name
 
@@ -110,6 +113,7 @@ class Salesprogram:
         obj_api = connection.NS_Services()
         inactive_items = []
         payload = {}
+        erros = []
         desconto = ""
         lista_items_formatada: list = []
         client_data = self.recover_client_data(eid_cliente, order_marker, name_order_maker, ordem_de_compra_e_desconto, lista_items)
@@ -184,7 +188,6 @@ class Salesprogram:
                     print(" 2.3.9 - Não foi solicitado os descontos.")
                 else:
                     print(" 2.3.9 - Será aplicado as promoções para cada item de acordo com o sistema.")
-                erros = []
                 for item in lista_items:
                     for key, value in item.items():
                         try:
@@ -207,22 +210,21 @@ class Salesprogram:
                                 else:
                                     i = {"item": {"externalId": key}, "quantity": int(value)}
                         except Exception as e:
-                            if e == "list index out of range":
-                                error = "Item não encontrado!"
-                            else:
-                                error = e
-                            erros.append({key: error})
+                            error = e
+                            if 'list index out of range' in str(e):
+                                error = 'Item não encontrado!'
+                            erros.append({"key": key})
                             i = {"item": {"externalId": key}, "quantity": "Item com erro: {}".format(e)}
                     lista_items_formatada.append(i)
                 payload.update({"item": {"items": lista_items_formatada}})
-                if len(erros) > 0:
-                    payload.update({"Erros": erros})
-                    print(" 2.3.10 [Erro] - Existe um ou mais itens com erro.")
                 print(" 2.3.10 - Lista de itens alocados com sucesso.")
             except Exception as e:
                 pass
             if len(inactive_items) > 0:
                 payload.update({"inactive_items": inactive_items})
+            if len(erros) > 0:
+                payload.update({"Erros": erros})
+                print(" 2.3.10a [Erro] - Existe um ou mais itens com erro.")
             print(" 2.3.11 - O json final é : \n{}".format(json.dumps(payload)))
             return payload
         else:
@@ -339,30 +341,32 @@ Candide Industria e Comercio ltda.
             return True
 
     def item_com_erro(self, json_to_insert=None, erros=None, name_order_maker=None, order_maker=None):
-        json_ = json.loads(json_to_insert)
+        json_ = json_to_insert
         err_send = mail_sender.Postman()
         cnpj = json_['entity']['externalid']
         ordem_compra = json_['otherrefnum']
         list_item = json_['item']['items']
         str_itens = ""
         if len(erros) == 1:
-            str_itens = erros[0]
+            str_itens = erros[0]['key']
         else:
             for i, item in enumerate(erros):
-                str_itens += item
+                str_itens += item['key']
                 if i < len(erros) - 1:
                     str_itens += ", "
         email_content = """
-        Olá, {}
-        Houve um problema ao inserir o pedido.
+Olá, {}
+Houve um problema ao inserir o pedido.
 
-        Motivo: O item ou itens {} está/estão com erro, por favor revise o pedido. 
-        Deverá ser retirado ou tratado os itens em questão apontados no arquivo em anexo, caso permaneça o erro, entre em contato com comercial@candide.com.br. 
+Motivo: O item ou itens {} está/estão com erro, por favor revise o pedido. 
+Deverá ser retirado ou tratado os itens em questão apontados no arquivo em anexo, caso permaneça o erro, entre em contato com comercial@candide.com.br. 
 
-        Atensiosamente,
-        Candide Industria e Comercio ltda. 
+Atensiosamente,
+Candide Industria e Comercio ltda. 
                         """.format(name_order_maker, str_itens)
+        print(cnpj, ordem_compra, list_item)
         arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
+        print(arch_name)
         err_send.send_mail(recipient=order_maker, subject="Pedido com item com erro", content=email_content, attach=arch_name)
 
     def get_inactive_itens_list(self) -> str:
