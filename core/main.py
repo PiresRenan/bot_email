@@ -12,7 +12,10 @@ from ns_api import connection
 class Salesprogram:
 
     def check_email(self) -> str:
-        # self.clean_files()
+        try:
+            self.clean_files()
+        except Exception as e:
+            print(" 1.0.1 - Não foi necessário limpar as pastas.")
         obj_email = email_interpreter.Email_getter()
         result = obj_email.email_catch()
         if result != "":
