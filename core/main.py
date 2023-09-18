@@ -184,28 +184,40 @@ class Salesprogram:
                     print(" 2.3.9 - Não foi solicitado os descontos.")
                 else:
                     print(" 2.3.9 - Será aplicado as promoções para cada item de acordo com o sistema.")
+                erros = []
                 for item in lista_items:
                     for key, value in item.items():
-                        if math.isnan(float(key)):
-                            key = 0
-                        if key != "":
-                            key = int(float(key))
-                            key = str(key)
-                        if math.isnan(float(value)):
-                            value = 0
-                            key = "error"
-                        if self.consulting_isinactive(key):
-                            inactive_items.append(key)
-                        if desconto.upper() == 'N':
-                            i = {"item": {"externalId": key}, "quantity": int(value)}
-                        else:
-                            promo = obj_api.get_promo(key)
-                            if promo:
-                                i = {"item": {"externalId": key}, "custcol_acs_aplc_prom": True, "quantity": int(value)}
-                            else:
+                        try:
+                            if math.isnan(float(key)):
+                                key = 0
+                            if key != "":
+                                key = int(float(key))
+                                key = str(key)
+                            if math.isnan(float(value)):
+                                value = 0
+                                key = "error"
+                            if self.consulting_isinactive(key):
+                                inactive_items.append(key)
+                            if desconto.upper() == 'N':
                                 i = {"item": {"externalId": key}, "quantity": int(value)}
+                            else:
+                                promo = obj_api.get_promo(key)
+                                if promo:
+                                    i = {"item": {"externalId": key}, "custcol_acs_aplc_prom": True, "quantity": int(value)}
+                                else:
+                                    i = {"item": {"externalId": key}, "quantity": int(value)}
+                        except Exception as e:
+                            if e == "list index out of range":
+                                error = "Item não encontrado!"
+                            else:
+                                error = e
+                            erros.append({key: error})
+                            i = {"item": {"externalId": key}, "quantity": "Item com erro: {}".format(e)}
                     lista_items_formatada.append(i)
                 payload.update({"item": {"items": lista_items_formatada}})
+                if len(erros) > 0:
+                    payload.update({"Erros": erros})
+                    print(" 2.3.10 [Erro] - Existe um ou mais itens com erro.")
                 print(" 2.3.10 - Lista de itens alocados com sucesso.")
             except Exception as e:
                 pass
@@ -325,6 +337,33 @@ Candide Industria e Comercio ltda.
             insert_warning.send_mail(recipient=order_marker, subject="Pedido inserido com sucesso.", content=email_content)
             print(" 2.3.13 - Pedido inserido com sucesso!")
             return True
+
+    def item_com_erro(self, json_to_insert=None, erros=None, name_order_maker=None, order_maker=None):
+        json_ = json.loads(json_to_insert)
+        err_send = mail_sender.Postman()
+        cnpj = json_['entity']['externalid']
+        ordem_compra = json_['otherrefnum']
+        list_item = json_['item']['items']
+        str_itens = ""
+        if len(erros) == 1:
+            str_itens = erros[0]
+        else:
+            for i, item in enumerate(erros):
+                str_itens += item
+                if i < len(erros) - 1:
+                    str_itens += ", "
+        email_content = """
+        Olá, {}
+        Houve um problema ao inserir o pedido.
+
+        Motivo: O item ou itens {} está/estão com erro, por favor revise o pedido. 
+        Deverá ser retirado ou tratado os itens em questão apontados no arquivo em anexo, caso permaneça o erro, entre em contato com comercial@candide.com.br. 
+
+        Atensiosamente,
+        Candide Industria e Comercio ltda. 
+                        """.format(name_order_maker, str_itens)
+        arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
+        err_send.send_mail(recipient=order_maker, subject="Pedido com item com erro", content=email_content, attach=arch_name)
 
     def get_inactive_itens_list(self) -> str:
         obj_api = connection.NS_Services()

@@ -22,7 +22,7 @@ async def index():
 @app.get("/on")
 async def index():
     global tasks
-    INTERVALO = 30
+    INTERVALO = 5
     # INTERVALO = 10
     fuso_horario_brasilia = pytz.timezone('America/Sao_Paulo')
     if not tasks:
@@ -74,9 +74,9 @@ async def index():
                                                              lista_items=order[0]['Items'],
                                                              order_marker=email_sender[idx],
                                                              name_order_maker=email_sender_name[idx])
-
                             if data_raw != 0:
                                 non_itens = data_raw.get('inactive_items', 'N/D')
+                                itens_errors = data_raw.get('Erros', 'N/D')
                                 if non_itens != 'N/D':
                                     itens_inactive = non_itens
                                     del data_raw['inactive_items']
@@ -87,6 +87,9 @@ async def index():
                                                                            order_maker=email_sender[idx],
                                                                            order_maker_name=email_sender_name[idx]):
                                         print(" 2.3.14 - Aviso de itens inativos foi tratado e enviado com sucesso.")
+                                elif itens_errors != 'N/D':
+                                    print(" 2.3.12 - Serão tomadas as medidas para pedidos com itens errados.")
+                                    principal.item_com_erro(json_to_insert=data_raw, erros=itens_errors, order_maker=email_sender[idx], name_order_maker=email_sender_name[idx])
                                 else:
                                     print(" 2.3.12 - Não existem itens inativo. O pedido seguirá para a absorção.")
                                     principal.send_order(json_to_insert=data_raw, order_marker=email_sender[idx], name_order_maker=email_sender_name[idx])
