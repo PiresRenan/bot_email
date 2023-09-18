@@ -2,6 +2,7 @@ import datetime
 import os
 import json
 import math
+import pytz
 
 import pandas as pd
 
@@ -85,7 +86,8 @@ class Salesprogram:
                 " 2.2.0 [Error] - Não pode recuperar os dados do CNPJ digitado, CNPJ: {}. Certifique-se se está digitado corretamente e/ou o cadastro está correto. Exceção capturada: {}".format(
                     eid_cliente, e))
             self.create_xlsx(cnpj=eid_cliente, ordem_de_compra=ordem_de_compra_e_desconto, lista_items=lista_items)
-            now = datetime.datetime.now()
+            brasilia_timezone = pytz.timezone('America/Sao_Paulo')
+            now = datetime.datetime.now(brasilia_timezone)
             time_now = now.strftime("%d/%m/%Y às %H:%M:%S")
             corpo_email = """
         O pedido inserido {}, por {} <{}>, não pode ser absorvido.
@@ -233,7 +235,8 @@ class Salesprogram:
     def order_with_inactive_items(self, json_to_absorve=None, itens_inativo=None, order_maker=None, order_maker_name=None):
         if json_to_absorve is not None:
             err_alert = mail_sender.Postman()
-            now = datetime.datetime.now()
+            brasilia_timezone = pytz.timezone('America/Sao_Paulo')
+            now = datetime.datetime.now(brasilia_timezone)
             time_now = now.strftime("%d/%m/%Y às %H:%M:%S")
             str_itens = ""
             if len(itens_inativo) == 1:
@@ -306,7 +309,8 @@ Candide Industria e Comercio ltda.
                 err_send.send_mail(recipient=order_marker, err=res, attach=arch_name)
             return True
         elif response.status_code == 204:
-            now = datetime.datetime.now()
+            brasilia_timezone = pytz.timezone('America/Sao_Paulo')
+            now = datetime.datetime.now(brasilia_timezone)
             time_now = now.strftime("%d/%m/%Y às %H:%M:%S")
             email_content = """
 Olá, {}
