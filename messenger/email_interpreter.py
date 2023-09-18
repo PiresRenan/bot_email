@@ -54,7 +54,7 @@ class Email_getter:
                                     f.write(file_data)
                             except Exception as e:
                                 print(" 1.0.3 - O arquivo não obteve êxito ao ser b aixado por: {}".format(e))
-                            # server.move(uid, 'Absorvidos')
+                            server.move(uid, 'Absorvidos')
                         elif filename.endswith(('.jpg')) or filename.endswith(('.png')) or filename.endswith(('.jpeg')) or filename.endswith(('.gif')):
                             pass
                         else:
@@ -63,7 +63,7 @@ class Email_getter:
                             path_to_file = "./Erros/{}".format(filename)
                             with open(path_to_file, 'wb') as f:
                                 f.write(file_data)
-                            # server.move(uid, 'Formato')
+                            server.move(uid, 'Formato')
                             self.extension_err(sender=email_message['From'], err=path_to_file)
             server.logout()
             return sender_email
