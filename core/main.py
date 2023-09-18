@@ -364,10 +364,9 @@ Deverá ser retirado ou tratado os itens em questão apontados no arquivo em ane
 Atensiosamente,
 Candide Industria e Comercio ltda. 
                         """.format(name_order_maker, str_itens)
-        print(cnpj, ordem_compra, list_item)
         arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
-        print(arch_name)
         err_send.send_mail(recipient=order_maker, subject="Pedido com item com erro", content=email_content, attach=arch_name)
+        print(" 2.3.13 - Pedido com item errado, emitido aviso para que seja tomada as devidas providencias. ")
 
     def get_inactive_itens_list(self) -> str:
         obj_api = connection.NS_Services()
