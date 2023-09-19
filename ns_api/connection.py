@@ -56,7 +56,7 @@ class NS_Services:
         if cnpj is not None:
             url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
             data_raw = {
-                "q": f"SELECT custentity_cand_tipofrete_cli, custentity_acs_cfx_c_dfltpymntbnk_ls, custentity_acs_carteira, externalid, custentity_acs_transp_cli, terms "
+                "q": f"SELECT id, custentity_cand_tipofrete_cli, custentity_acs_cfx_c_dfltpymntbnk_ls, custentity_acs_carteira, externalid, custentity_acs_transp_cli, terms "
                      f"FROM customer "
                      f"WHERE custentity_enl_cnpjcpf = '{cnpj}'"
             }
@@ -71,7 +71,7 @@ class NS_Services:
             cnpj = cnpj[:14]
         url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
         data_raw = {
-            "q": f"SELECT custentity_cand_tipofrete_cli, custentity_acs_cfx_c_dfltpymntbnk_ls, custentity_acs_carteira, externalid, custentity_acs_transp_cli, terms "
+            "q": f"SELECT id, custentity_cand_tipofrete_cli, custentity_acs_cfx_c_dfltpymntbnk_ls, custentity_acs_carteira, externalid, custentity_acs_transp_cli, terms "
                  f"FROM customer "
                  f"WHERE custentity_enl_cnpjcpf='{cnpj}'"
         }
@@ -83,7 +83,7 @@ class NS_Services:
         if cnpj is not None:
             url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
             data_raw = {
-                "q": f"SELECT custentity_cand_tipofrete_cli, custentity_acs_cfx_c_dfltpymntbnk_ls, custentity_acs_carteira, externalid, custentity_acs_transp_cli, terms "
+                "q": f"SELECT id, custentity_cand_tipofrete_cli, custentity_acs_cfx_c_dfltpymntbnk_ls, custentity_acs_carteira, externalid, custentity_acs_transp_cli, terms "
                      f"FROM customer "
                      f"WHERE   LIKE %'{cnpj}'%"
             }

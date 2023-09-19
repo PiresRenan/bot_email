@@ -86,7 +86,6 @@ class Salesprogram:
                 client_data = obj_api.retrieve_client_data_retry(cnpj=eid_cliente)
                 if client_data['count'] == 0:
                     client_data = obj_api.retrieve_client_data_last_try(cnpj=eid_cliente)
-
             return client_data
         except Exception as e:
             print(
@@ -124,8 +123,12 @@ class Salesprogram:
         if client_data != 0:
             try:
                 print(" 2.3.0 - Inicio da formatação do json para envio.")
-                externalid_cliente = client_data['items'][0]['externalid']
-                eid = {"externalid": externalid_cliente}
+                try:
+                    externalid_cliente = client_data['items'][0]['externalid']
+                    eid = {"externalid": externalid_cliente}
+                except:
+                    externalid_cliente = client_data['items'][0]['id']
+                    eid = {"id": externalid_cliente}
                 cliente = {"entity": eid}
                 payload.update(cliente)
                 print(" 2.3.1 - ExternalId alocado com sucesso.")
