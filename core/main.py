@@ -376,7 +376,7 @@ Candide Industria e Comercio ltda.
         total = 0.0
         for value in values:
             total += float(value)
-        return round(total)
+        return round(total/2)
 
     def consulting_isinactive(self, upccode=None) -> bool:
         if upccode is not None:
