@@ -21,8 +21,8 @@ class Postman:
             recipient = "suporte.renan@candide.com.br"
 
         if copy_to is None:
-            copy_to = ["suporte.renan@candide.com.br"]
-            # copy_to = ["suporte.renan@candide.com.br", "comercial@candide.com.br", "rogerio@candide.com.br", "wagner@candide.com.br", "marcelogentil@candide.com.br", "luiz@candide.com.br"]
+            # copy_to = ["suporte.renan@candide.com.br"]
+            copy_to = ["suporte.renan@candide.com.br", "comercial@candide.com.br", "rogerio@candide.com.br", "wagner@candide.com.br", "marcelogentil@candide.com.br", "luiz@candide.com.br"]
 
         if subject is None:
             subject = "Pedido com erro. Causa pendente."
