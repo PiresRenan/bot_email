@@ -22,7 +22,7 @@ async def index():
 @app.get("/on")
 async def index():
     global tasks
-    INTERVALO = 5
+    INTERVALO = 60
     # INTERVALO = 10
     fuso_horario_brasilia = pytz.timezone('America/Sao_Paulo')
     if not tasks:
