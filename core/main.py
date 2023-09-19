@@ -38,7 +38,7 @@ class Salesprogram:
                 if file.endswith(".xlsx"):
                     path_to_file = os.path.join("Pedidos", file)
                     list_orders.append(self.retrieve_data_from_excel(path_to_file))
-        return list_orders
+        return list_orders[0]
 
     @staticmethod
     def retrieve_data_from_excel(path):

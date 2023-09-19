@@ -22,7 +22,7 @@ async def index():
 @app.get("/on")
 async def index():
     global tasks
-    INTERVALO = 60
+    INTERVALO = 5
     # INTERVALO = 10
     fuso_horario_brasilia = pytz.timezone('America/Sao_Paulo')
     if not tasks:
@@ -62,7 +62,7 @@ async def index():
                         print()
                         print(" - #***#***#***#***#***#***#***#***#***# - ")
                         try:
-                            raw_cnpj = order[0]['Pedido'][0]
+                            raw_cnpj = order['Pedido'][0]
                             if raw_cnpj.endswith(".0"):
                                 raw_cnpj = raw_cnpj.replace(".0", "")
                             cnpj = re.sub(r'[^0-9]', '', raw_cnpj)
@@ -70,10 +70,10 @@ async def index():
                                 " 2.1.0 - Pedido {} de {}, (CNPJ: {}) em processo de recuperação de dados. Aguarde.".format(
                                     (idx + 1), qtt_orders, cnpj))
                             data_raw = principal.format_json(eid_cliente=cnpj,
-                                                             ordem_de_compra_e_desconto=order[0]['Pedido'][1],
-                                                             lista_items=order[0]['Items'],
-                                                             order_marker=email_sender[idx],
-                                                             name_order_maker=email_sender_name[idx])
+                                                             ordem_de_compra_e_desconto=order['Pedido'][1],
+                                                             lista_items=order['Items'],
+                                                             order_marker=email_sender[0],
+                                                             name_order_maker=email_sender_name[0])
                             if data_raw != 0:
                                 non_itens = data_raw.get('inactive_items', 'N/D')
                                 itens_errors = data_raw.get('Erros', 'N/D')
