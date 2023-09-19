@@ -290,7 +290,7 @@ Candide Industria e Comercio ltda
             r = response.json()
             res = r['o:errorDetails'][0]['detail']
             if res.endswith('Saldo do cliente ultrapassa limite de crédito.'):
-                json_ = json.loads(json_to_insert)
+                json_ = json_to_insert
                 values = []
                 for item in json_['item']['items']:
                     externalId = item['item']['externalId']
@@ -303,7 +303,7 @@ Olá, {}
 Houve um problema ao inserir o pedido.
 
 Motivo: O saldo do cliente está abaixo do valor total do pedido a ser inserido. 
-O pedido tem valor aproximado de {} (impostos e preços personalizados não inclusos), entre em contato com o setor responsável (comercial@candide.com.br) para que o ajuste seja feito e reenvie o mesmo para que seja absorvido corretamente.
+O pedido tem valor aproximado de R${},00 (impostos e preços personalizados não inclusos), entre em contato com o setor responsável (comercial@candide.com.br) para que o ajuste seja feito e reenvie o mesmo para que seja absorvido corretamente.
 
 Atensiosamente,
 Candide Industria e Comercio ltda. 
@@ -312,7 +312,7 @@ Candide Industria e Comercio ltda.
                 ordem_compra = json_['otherrefnum']
                 list_item = json_['item']['items']
                 arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
-                print(" 2.3.15 - Pedido NÃO inserido com êxito - Cliente com saldo insuficiente.")
+                print(" 2.3.15 - Pedido NÃO inserido - Cliente com saldo insuficiente.")
                 err_send.send_mail(recipient=order_marker, subject="Saldo do cliente abaixo do total do pedido.", attach=arch_name, content=email_content)
             elif res != "":
                 json_ = json.loads(json_to_insert)
