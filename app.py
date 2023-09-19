@@ -84,15 +84,15 @@ async def index():
                                         " 2.3.12 - Existem itens inativos no pedido, será tomado as medidas necessárias.")
                                     if principal.order_with_inactive_items(json_to_absorve=data_raw,
                                                                            itens_inativo=itens_inactive,
-                                                                           order_maker=email_sender[idx],
-                                                                           order_maker_name=email_sender_name[idx]):
+                                                                           order_maker=email_sender[0],
+                                                                           order_maker_name=email_sender_name[0]):
                                         print(" 2.3.14 - Aviso de itens inativos foi tratado e enviado com sucesso.")
                                 elif itens_errors != 'N/D':
                                     print(" 2.3.12 - Serão tomadas as medidas para pedidos com itens errados.")
-                                    principal.item_com_erro(json_to_insert=data_raw, erros=itens_errors, order_maker=email_sender[idx], name_order_maker=email_sender_name[idx])
+                                    principal.item_com_erro(json_to_insert=data_raw, erros=itens_errors, order_maker=email_sender[0], name_order_maker=email_sender_name[0])
                                 else:
                                     print(" 2.3.12 - Não existem itens inativo. O pedido seguirá para a absorção.")
-                                    principal.send_order(json_to_insert=data_raw, order_marker=email_sender[idx], name_order_maker=email_sender_name[idx])
+                                    principal.send_order(json_to_insert=data_raw, order_marker=email_sender[0], name_order_maker=email_sender_name[0])
 
                         except Exception as e:
                             cnpj = "Campo invalido"
