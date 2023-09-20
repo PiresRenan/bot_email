@@ -216,7 +216,6 @@ class Salesprogram:
                                 inativo = self.consulting_isinactive(key)
 
                             key = self.find_item_eid(key)
-                            print(key)
                             if desconto.upper() == 'N':
                                 i = {"item": {"externalId": key}, "quantity": int(value)}
                             else:
