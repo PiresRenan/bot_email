@@ -1,5 +1,4 @@
 import email
-import base64
 import datetime
 import pytz
 
@@ -54,7 +53,7 @@ class Email_getter:
                                     f.write(file_data)
                             except Exception as e:
                                 print(" 1.0.3 - O arquivo não obteve êxito ao ser b aixado por: {}".format(e))
-                            # server.move(uid, 'Absorvidos')
+                            server.move(uid, 'Absorvidos')
                         elif filename.endswith(('.jpg')) or filename.endswith(('.png')) or filename.endswith(('.jpeg')) or filename.endswith(('.gif')):
                             pass
                         else:
@@ -66,6 +65,7 @@ class Email_getter:
                             server.move(uid, 'Formato')
                             self.extension_err(sender=email_message['From'], err=path_to_file)
             server.logout()
+            final_senders = []
             return sender_email
         except Exception as e:
             print(" 1.0.1 [error] - Não pode conectar ao email. Motivo: {}".format(e))

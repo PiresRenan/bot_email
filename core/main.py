@@ -1,6 +1,7 @@
 import datetime
 import os
 import json
+import quopri
 import math
 import pytz
 
@@ -253,6 +254,23 @@ class Salesprogram:
                         shutil.rmtree(item_path)
         return True
 
+    def special_chars_prevent(self, s=None):
+        decoded_text = ''
+        if s.startswith('=?iso-8859-1'):
+            parts = s.split("?")
+            if len(parts) >= 4:
+                charset = parts[1]
+                encoding = parts[2]
+                encoded_text = parts[3]
+                try:
+                    decoded_text = quopri.decodestring(encoded_text).decode(charset)
+                    decoded_text = decoded_text.replace("_", " ").replace("-", " ")
+                except (quopri.Error, UnicodeDecodeError) as e:
+                    print(f"Erro ao decodificar a string: {e}")
+        else:
+            decoded_text = s
+        return decoded_text
+
     def order_with_inactive_items(self, json_to_absorve=None, itens_inativo=None, order_maker=None, order_maker_name=None):
         if json_to_absorve is not None:
             err_alert = mail_sender.Postman()
@@ -321,8 +339,27 @@ Candide Industria e Comercio ltda.
                 arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
                 print(" 2.3.15 - Pedido NÃO inserido - Cliente com saldo insuficiente.")
                 err_send.send_mail(recipient=order_marker, subject="Saldo do cliente abaixo do total do pedido.", attach=arch_name, content=email_content)
+            elif res.endswith('Prazo.'):
+                json_ = json_to_insert
+                cnpj = json_['entity']['externalid']
+                ordem_compra = json_['otherrefnum']
+                list_item = json_['item']['items']
+                email_content = """
+Olá, {}
+Houve um problema ao inserir o pedido.
+
+Motivo: O cadastro do cliente está incompleto. Campo "Prazo" está pendente.
+O pedido poderá ser inserido assim que o setor responsável atualizar os dados cadastrais, sendo necessário encaminhar este email para cadastro@candide.com.br, solicitando que os dados do cliente do CNPJ {} sejam alinhados. 
+Caso existam necessidades especiais e/ou prazos dedicados a este CNPJ em questão, reencaminhe o e-mail para comercial@candide.com.br. 
+
+Atensiosamente,
+Candide Industria e Comercio ltda. 
+                                """.format(name_order_maker, cnpj)
+                arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
+                print(" 2.3.15 - Pedido NÃO inserido - Erro no prazo cadastrado do cliente.")
+                err_send.send_mail(recipient=order_marker, subject="Dados cadastrais incompletos: Prazo", attach=arch_name, content=email_content)
             elif res != "":
-                json_ = json.loads(json_to_insert)
+                json_ = json_to_insert
                 cnpj = json_['entity']['externalid']
                 ordem_compra = json_['otherrefnum']
                 list_item = json_['item']['items']

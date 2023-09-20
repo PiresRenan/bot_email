@@ -44,7 +44,9 @@ async def index():
                 email_sender_name = []
                 for order in email:
                     email_sender.append(order.split('<')[1].replace('>', ''))
-                    email_sender_name.append(order.split('<')[0])
+                    name = order.split('<')[0]
+                    name_ = principal.special_chars_prevent(name)
+                    email_sender_name.append(name_)
                 if email != "":
                     print(" 1.1.0 - Email foi verificado com sucesso!")
                 else:
