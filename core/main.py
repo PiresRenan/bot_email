@@ -207,6 +207,8 @@ class Salesprogram:
                             if math.isnan(float(value)):
                                 value = 0
                                 key = "error"
+                            if len(key) < 4:
+                                key = key.zfill(4)
                             if self.consulting_isinactive(key):
                                 inactive_items.append(key)
                             if desconto.upper() == 'N':
