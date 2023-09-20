@@ -210,12 +210,10 @@ class Salesprogram:
                             if len(key) < 4:
                                 key = key.zfill(4)
                             try:
-                                if self.consulting_isinactive(key):
-                                    inactive_items.append(key)
+                                inativo = self.consulting_isinactive(key)
                             except:
                                 key = int(key)
-                                if self.consulting_isinactive(key):
-                                    inactive_items.append(key)
+                                inativo = self.consulting_isinactive(key)
                             if desconto.upper() == 'N':
                                 i = {"item": {"externalId": key}, "quantity": int(value)}
                             else:
@@ -317,6 +315,7 @@ Candide Industria e Comercio ltda
     def send_order(self, json_to_insert=None, order_marker=None, name_order_maker=None) -> bool:
         obj_api = connection.NS_Services()
         response = obj_api.insert_order(data_raw=json_to_insert)
+        print(response.json())
         if response.status_code == 400:
             err_send = mail_sender.Postman()
             r = response.json()
