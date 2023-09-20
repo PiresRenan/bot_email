@@ -91,6 +91,19 @@ class NS_Services:
                 result = r.json()
             return result
 
+    def find_item_id(self, key=None):
+        if key is not None:
+            url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
+            data_raw = {
+                "q": f"SELECT externalId "
+                     f"FROM item "
+                     f"WHERE upccode='{key}'"
+            }
+            with requests.post(url=url, headers=self.build_header(env=1), json=data_raw) as r:
+                result = r.json()
+            eid = result['items'][0]['externalid']
+            return eid
+
     def all_inactive_itens(self) -> str:
         url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
         data_raw = {

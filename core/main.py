@@ -214,6 +214,9 @@ class Salesprogram:
                             except:
                                 key = int(key)
                                 inativo = self.consulting_isinactive(key)
+
+                            key = self.find_item_eid(key)
+                            print(key)
                             if desconto.upper() == 'N':
                                 i = {"item": {"externalId": key}, "quantity": int(value)}
                             else:
@@ -437,3 +440,9 @@ Candide Industria e Comercio ltda.
                 return True
             else:
                 return False
+
+    def find_item_eid(self, key=None):
+        if key is not None:
+            obj_api = connection.NS_Services()
+            key = obj_api.find_item_id(key)
+        return key
