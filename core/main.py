@@ -357,7 +357,7 @@ Candide Industria e Comercio ltda.
                                 """.format(name_order_maker, cnpj)
                 arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
                 print(" 2.3.15 - Pedido NÃO inserido - Erro no prazo cadastrado do cliente.")
-                copy_to = ["suporte.renan@candide.com.br", "comercial@candide.com.br", "rogerio@candide.com.br", "cadastro@candide.com.br"
+                copy_to = ["suporte.renan@candide.com.br", "suporte@candide.com.br", "comercial@candide.com.br", "rogerio@candide.com.br", "cadastro@candide.com.br",
                            "wagner@candide.com.br", "marcelogentil@candide.com.br", "luiz@candide.com.br"]
                 err_send.send_mail(recipient=order_marker, copy_to=copy_to, subject="Dados cadastrais incompletos: Prazo", attach=arch_name, content=email_content)
             elif res != "":
