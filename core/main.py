@@ -209,8 +209,13 @@ class Salesprogram:
                                 key = "error"
                             if len(key) < 4:
                                 key = key.zfill(4)
-                            if self.consulting_isinactive(key):
-                                inactive_items.append(key)
+                            try:
+                                if self.consulting_isinactive(key):
+                                    inactive_items.append(key)
+                            except:
+                                key = int(key)
+                                if self.consulting_isinactive(key):
+                                    inactive_items.append(key)
                             if desconto.upper() == 'N':
                                 i = {"item": {"externalId": key}, "quantity": int(value)}
                             else:

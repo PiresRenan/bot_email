@@ -94,6 +94,7 @@ async def index():
                                     principal.item_com_erro(json_to_insert=data_raw, erros=itens_errors, order_maker=email_sender[0], name_order_maker=email_sender_name[0])
                                 else:
                                     print(" 2.3.12 - Não existem itens inativo. O pedido seguirá para a absorção.")
+                                    print(data_raw)
                                     principal.send_order(json_to_insert=data_raw, order_marker=email_sender[0], name_order_maker=email_sender_name[0])
 
                         except Exception as e:
