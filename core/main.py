@@ -317,8 +317,8 @@ Candide Industria e Comercio ltda
     def send_order(self, json_to_insert=None, order_marker=None, name_order_maker=None) -> bool:
         obj_api = connection.NS_Services()
         response = obj_api.insert_order(data_raw=json_to_insert)
-        print(response.json())
-        if response.status_code == 400:
+        st_code = response.status_code
+        if st_code == 400:
             err_send = mail_sender.Postman()
             r = response.json()
             res = r['o:errorDetails'][0]['detail']
@@ -335,11 +335,11 @@ Candide Industria e Comercio ltda
 Olá, {}
 Houve um problema ao inserir o pedido.
 
-Motivo: O saldo do cliente está abaixo do valor total do pedido a ser inserido. 
+Motivo: O saldo do cliente está abaixo do valor total do pedido a ser inserido.
 O pedido tem valor aproximado de R${},00 (impostos e preços personalizados não inclusos), entre em contato com o setor responsável (comercial@candide.com.br) para que o ajuste seja feito e reenvie o mesmo para que seja absorvido corretamente.
 
 Atensiosamente,
-Candide Industria e Comercio ltda. 
+Candide Industria e Comercio ltda.
                 """.format(name_order_maker, total_order)
                 cnpj = json_['entity']['externalid']
                 ordem_compra = json_['otherrefnum']
@@ -357,11 +357,11 @@ Olá, {}
 Houve um problema ao inserir o pedido.
 
 Motivo: O cadastro do cliente está incompleto. Campo "Prazo" está pendente.
-O pedido poderá ser inserido assim que o setor responsável atualizar os dados cadastrais, sendo necessário encaminhar este email para cadastro@candide.com.br, solicitando que os dados do cliente do CNPJ {} sejam alinhados. 
-Caso existam necessidades especiais e/ou prazos dedicados a este CNPJ em questão, reencaminhe o e-mail para comercial@candide.com.br. 
+O pedido poderá ser inserido assim que o setor responsável atualizar os dados cadastrais, sendo necessário encaminhar este email para cadastro@candide.com.br, solicitando que os dados do cliente do CNPJ {} sejam alinhados.
+Caso existam necessidades especiais e/ou prazos dedicados a este CNPJ em questão, reencaminhe o e-mail para comercial@candide.com.br.
 
 Atensiosamente,
-Candide Industria e Comercio ltda. 
+Candide Industria e Comercio ltda.
                                 """.format(name_order_maker, cnpj)
                 arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
                 print(" 2.3.15 - Pedido NÃO inserido - Erro no prazo cadastrado do cliente.")
@@ -376,7 +376,7 @@ Candide Industria e Comercio ltda.
                 arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
                 err_send.send_mail(recipient=order_marker, err=res, attach=arch_name)
             return True
-        elif response.status_code == 204:
+        elif st_code == 204:
             brasilia_timezone = pytz.timezone('America/Sao_Paulo')
             now = datetime.datetime.now(brasilia_timezone)
             time_now = now.strftime("%d/%m/%Y às %H:%M:%S")
@@ -387,7 +387,7 @@ O pedido feito no dia {}, foi inserido com êxito.
 Confira no sistema NetSuite na barra de funções deixe o ponteiro do mouse sobre "Clientes", então entre as opções deixe o ponteiro do mouse sobre "Transações" e então clique em "Pedidos de vendas", fazendo isto aparecerá todos os pedidos que foram feitos e vinculados ao seu código de representante.
 
 Atensiosamente,
-Candide Industria e Comercio ltda. 
+Candide Industria e Comercio ltda.
                             """.format(name_order_maker, time_now)
             insert_warning = mail_sender.Postman()
             insert_warning.send_mail(recipient=order_marker, subject="Pedido inserido com sucesso.", content=email_content)
