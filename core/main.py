@@ -3,6 +3,8 @@ import os
 import json
 import quopri
 import math
+from time import sleep
+
 import pytz
 
 import pandas as pd
@@ -65,9 +67,25 @@ class Salesprogram:
     @staticmethod
     def create_xlsx(cnpj=None, ordem_de_compra=None, lista_items=None) -> str:
         items = []
-        for i in lista_items:
-            item = (i['item']['externalId'], i['quantity'])
-            items.append(item)
+        try:
+            for i in lista_items:
+                item = (i['item']['externalId'], i['quantity'])
+                items.append(item)
+                data = [(cnpj, ordem_de_compra)] + items
+                df = pd.DataFrame(data, columns=["CNPJ/SKU", "ORDEM DE COMPRA/QUANTIDADE"])
+                try:
+                    with pd.ExcelWriter(f'./Erros/erro{cnpj}.xlsx', engine='xlsxwriter') as writer:
+                        df.to_excel(writer, index=False)
+                except Exception as e:
+                    print(e)
+            arc_name = f'./Erros/erro{cnpj}.xlsx'
+            return arc_name
+        except Exception as e:
+            items = []
+            for d in lista_items:
+                for key, value in d.items():
+                    item = (key, value)
+                    items.append(item)
             data = [(cnpj, ordem_de_compra)] + items
             df = pd.DataFrame(data, columns=["CNPJ/SKU", "ORDEM DE COMPRA/QUANTIDADE"])
             try:
@@ -75,8 +93,8 @@ class Salesprogram:
                     df.to_excel(writer, index=False)
             except Exception as e:
                 print(e)
-        arc_name = f'./Erros/erro{cnpj}.xlsx'
-        return arc_name
+            arc_name = f'./Erros/erro{cnpj}.xlsx'
+            return arc_name
 
     def recover_client_data(self, eid_cliente=None, order_marker=None, name_order_maker=None, ordem_de_compra_e_desconto=None, lista_items=None):
         obj_api = connection.NS_Services()
@@ -87,27 +105,32 @@ class Salesprogram:
                 client_data = obj_api.retrieve_client_data_retry(cnpj=eid_cliente)
                 if client_data['count'] == 0:
                     client_data = obj_api.retrieve_client_data_last_try(cnpj=eid_cliente)
-            return client_data
+            if client_data['count'] != 0:
+                return client_data
+            else:
+                raise Exception(" e nenhum cliente encontrado após três tentativas")
         except Exception as e:
             print(
                 " 2.2.0 [Error] - Não pode recuperar os dados do CNPJ digitado, CNPJ: {}. Certifique-se se está digitado corretamente e/ou o cadastro está correto. Exceção capturada: {}".format(
                     eid_cliente, e))
-            self.create_xlsx(cnpj=eid_cliente, ordem_de_compra=ordem_de_compra_e_desconto, lista_items=lista_items)
+            arch_name = self.create_xlsx(eid_cliente, ordem_de_compra_e_desconto, lista_items)
+            sleep(60)
             brasilia_timezone = pytz.timezone('America/Sao_Paulo')
             now = datetime.datetime.now(brasilia_timezone)
             time_now = now.strftime("%d/%m/%Y às %H:%M:%S")
             corpo_email = """
-        O pedido inserido {}, por {} <{}>, não pode ser absorvido.
-        O motivo: CNPJ digitado no corpo do arquivo não foi encontrado nos registros do Oracle NetSuite da Candide Industria e Comercio ltda., certifique-se de ter digitado corretamente, ou se o cliente desejado foi previamente cadastrado no sistema.
+        Olá {},
+        a tentiva de inserir o pedido no dia {} através da automação não foi conclída com êxito.
 
+        O motivo: CNPJ {} no corpo do arquivo não foi encontrado nos registros do Oracle NetSuite da Candide Industria e Comercio ltda., certifique-se de ter digitado corretamente, ou se o cliente desejado foi previamente cadastrado no sistema.
         No caso do CNPJ não estar registrado, entre em contato com o setor de cadastros através do endereço cadastro@candide.com.br.
         Caso existam irregularidades com o CNPJ, entre em contato com comercial@candide.com.br.
 
         Atensiosamente,
         Candide Industria e Comércio ltda.
-                    """.format(time_now, name_order_maker, order_marker)
-            err_send.send_mail(recipient=order_marker, subject="CNPJ para o pedido inválido.",
-                               attach='./Erros/erro_no_pedido_{}.xlsx'.format(eid_cliente))
+                    """.format(name_order_maker, time_now, eid_cliente)
+            err_send.send_mail(recipient=order_marker, subject="CNPJ inválido.", content=corpo_email,
+                               attach=arch_name)
             return 0
 
     def format_json(self, eid_cliente=None, ordem_de_compra_e_desconto=None, lista_items=None, memo=None,

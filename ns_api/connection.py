@@ -85,7 +85,7 @@ class NS_Services:
             data_raw = {
                 "q": f"SELECT id, custentity_cand_tipofrete_cli, custentity_acs_cfx_c_dfltpymntbnk_ls, custentity_acs_carteira, externalid, custentity_acs_transp_cli, terms "
                      f"FROM customer "
-                     f"WHERE   LIKE %'{cnpj}'%"
+                     f"WHERE custentity_enl_cnpjcpf LIKE '{cnpj}'"
             }
             with requests.post(url=url, headers=self.build_header(env=1), json=data_raw) as r:
                 result = r.json()
