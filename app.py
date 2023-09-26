@@ -52,8 +52,12 @@ async def index():
                 else:
                     print(" 1.1.0 - O email não obteve êxito ao ser verificado. Investigue causa.")
                 end_time_email = datetime.datetime.now()
-                orders = principal.get_data_from_excel(o_maker=email_sender[0], o_name_maker=email_sender_name[0])
-                qtt_orders = len(orders)
+                qtt_orders = 0
+                try:
+                    orders = principal.get_data_from_excel(o_maker=email_sender[0], o_name_maker=email_sender_name[0])
+                    qtt_orders = len(orders)
+                except Exception as e:
+                    print(e)
                 if qtt_orders > 0:
                     print(
                         " 1.2.0 - Existem {} pedidos a serem absorvidos.".format(qtt_orders))
