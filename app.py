@@ -52,11 +52,11 @@ async def index():
                 else:
                     print(" 1.1.0 - O email não obteve êxito ao ser verificado. Investigue causa.")
                 end_time_email = datetime.datetime.now()
-                orders = principal.get_data_from_excel()
+                orders = principal.get_data_from_excel(o_maker=email_sender[0], o_name_maker=email_sender_name[0])
                 qtt_orders = len(orders)
                 if qtt_orders > 0:
                     print(
-                        " 1.2.0 - Existem {} pedidos a serem absorvidos.".format(len(principal.get_data_from_excel())))
+                        " 1.2.0 - Existem {} pedidos a serem absorvidos.".format(qtt_orders))
                     print(" 2.0.0 - Inicio da recuperação de dados e formatação do json.")
                     for idx, order in enumerate(orders):
                         start_time_data_adm = datetime.datetime.now()

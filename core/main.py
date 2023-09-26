@@ -33,14 +33,14 @@ class Salesprogram:
         else:
             return ""
 
-    def get_data_from_excel(self) -> list:
+    def get_data_from_excel(self, o_maker=None, o_name_maker=None) -> list:
         list_orders = []
         files = os.listdir("Pedidos")
         if len(files) > 0:
             for file in files:
                 if file.endswith(".xlsx"):
                     path_to_file = os.path.join("Pedidos", file)
-                    list_orders.append(self.retrieve_data_from_excel(path_to_file))
+                    list_orders.append(self.retrieve_data_from_excel(path_to_file, o_maker, o_name_maker))
         try:
             list_orders = list_orders[0]
         except:
@@ -48,21 +48,41 @@ class Salesprogram:
         return list_orders
 
     @staticmethod
-    def retrieve_data_from_excel(path):
-        df = pd.read_excel(path)
-        pedido_atual = {}
-        flag = 0
-        pedidos: list = []
-        for idx, row in df.iterrows():
-            cnpj_sku, ordem_quantidade = str(row.iloc[0]), row.iloc[1]
-            if len(str(cnpj_sku)) > 6:
-                flag += 1
-                pedido_atual = {"Pedido": [cnpj_sku, ordem_quantidade], "Items": []}
-                pedidos.append(pedido_atual)
-            else:
-                item = {cnpj_sku: ordem_quantidade}
-                pedido_atual['Items'].append(item)
-        return pedidos
+    def retrieve_data_from_excel(path=None, o_maker=None, o_name_maker=None):
+        try:
+            df = pd.read_excel(path)
+            pedido_atual = {}
+            flag = 0
+            pedidos: list = []
+            for idx, row in df.iterrows():
+                cnpj_sku, ordem_quantidade = str(row.iloc[0]), row.iloc[1]
+                if len(str(cnpj_sku)) > 6:
+                    flag += 1
+                    pedido_atual = {"Pedido": [cnpj_sku, ordem_quantidade], "Items": []}
+                    pedidos.append(pedido_atual)
+                else:
+                    item = {cnpj_sku: ordem_quantidade}
+                    pedido_atual['Items'].append(item)
+            return pedidos
+        except Exception as e:
+            err_send = mail_sender.Postman()
+            brasilia_timezone = pytz.timezone('America/Sao_Paulo')
+            now = datetime.datetime.now(brasilia_timezone)
+            time_now = now.strftime("%d/%m/%Y às %H:%M:%S")
+            corpo_email = """
+Olá {},
+a tentiva de inserir o pedido no dia {} através da automação não foi conclída com êxito.
+
+O motivo: o arquivo é xlsx porém não satisfaz as configurações do arquivo definidos por padrão. 
+Certifique-se de que haja apenas duas colunas nomeadas "CNPJ/SKU" e "ORDEM DE COMPRA/QUANTIDADE", respectivamente.
+Certifique-se de não ter espaços em branco, com exceção do caso do pedido não ter numero de ordem de compras, e ter promoções aplicadas(sendo assim, a notação 'n' não estará presente).
+Certifique-se de diversos pedidos serem separados digitando o cnpj e ordem de compra/desconto, logo após o ultimo item do pedido anterior.
+
+Atensiosamente,
+Candide Industria e Comércio ltda.
+                                """.format(o_name_maker, time_now)
+            err_send.send_mail(recipient=o_maker, subject="Formatação do pedido incorreta.", content=corpo_email)
+            return []
 
     @staticmethod
     def create_xlsx(cnpj=None, ordem_de_compra=None, lista_items=None) -> str:
