@@ -1,3 +1,4 @@
+import re
 import email
 import datetime
 import pytz
@@ -26,6 +27,7 @@ class Email_getter:
             messages = server.search()
             for uid, message_data in server.fetch(messages, 'RFC822').items():
                 email_message = email.message_from_bytes(message_data[b'RFC822'])
+                count = 0
                 for part in email_message.walk():
                     filename = part.get_filename()
                     if filename is not None:
@@ -34,14 +36,43 @@ class Email_getter:
                             temporary_name = temporary_name[3]
                             filename = temporary_name.replace("=E0", "a").replace("=E1", "a").replace("=E2", "a").replace("=E3", "a").replace("=E4", "a").replace("=E5", "a").replace("=E6", "a").replace("=E7", "a").replace("=E8", "a").replace("=E9", "a").replace("=AA", "a").replace("=BA", "a")
 
-                        if filename.startswith("=?UTF-8"):
-                            filename = filename.split("?")[3]
-                            filename = filename.replace('=20', "")
-                            filename = filename.encode('UTF-8')
-                            translator = Translator()
-                            filename = translator.translate(filename.decode('UTF-8'), src="en", dest="pt").text
+                        if filename.startswith(("=?UTF-8",)):
+                            try:
+                                filename_parts = filename.split("?")
+                                if len(filename_parts) >= 4:
+                                    translated_filename = filename_parts[3]
+                                    translated_filename = filename.replace('=20', "")
+                                    if not translated_filename.endswith((".xlsx",)):
+                                        translated_filename += ".xlsx"
+                                    translated_filename = translated_filename.encode('UTF-8')
+                                    translator = Translator()
+                                    translated_filename = translator.translate(translated_filename.decode('UTF-8'), src="en",
+                                                                               dest="pt").text
+                                    if translated_filename is not None:
+                                        filename = translated_filename
+                                else:
+                                    print(" 1.0.2 [error] - Formato de nome de arquivo inválido: {}".format(filename))
+                            except Exception as e:
+                                if str(e).endswith("'NoneType' object has no attribute 'group'"):
+                                    filename_parts = filename.split("?")
+                                    if len(filename_parts) >= 4:
+                                        translated_filename = filename_parts[3]
+                                        translated_filename = translated_filename.replace('=20', "")
+                                        if not translated_filename.endswith((".xlsx",)):
+                                            translated_filename += ".xlsx"
+                                        if translated_filename is not None:
+                                            filename = translated_filename
+                                    else:
+                                        print(
+                                            " 1.0.2 [error] - Formato de nome de arquivo inválido: {}".format(filename))
 
-                        if filename.endswith(('.xlsx')):
+                        suffixes = (b".xlsx",)
+                        try:
+                            teste_extensao = filename.endswith(suffixes)
+                        except:
+                            teste_extensao = filename.encode().endswith(suffixes)
+
+                        if teste_extensao:
                             sender_email.append(email_message['From'])
                             email_s = email_message['From'].split(" <")[1].replace(">", "")
                             print(" 1.0.1 - Pedido recebido por {}".format(email_s))
@@ -52,8 +83,8 @@ class Email_getter:
                                 with open(path_to_file, 'wb') as f:
                                     f.write(file_data)
                             except Exception as e:
-                                print(" 1.0.3 - O arquivo não obteve êxito ao ser b aixado por: {}".format(e))
-                            server.move(uid, 'Absorvidos')
+                                print(" 1.0.3 - O arquivo não obteve êxito ao ser baixado por: {}".format(e))
+                            # server.move(uid, 'Absorvidos')
                         elif filename.endswith(('.jpg')) or filename.endswith(('.png')) or filename.endswith(('.jpeg')) or filename.endswith(('.gif')):
                             pass
                         else:

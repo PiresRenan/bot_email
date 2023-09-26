@@ -119,15 +119,15 @@ class Salesprogram:
             now = datetime.datetime.now(brasilia_timezone)
             time_now = now.strftime("%d/%m/%Y às %H:%M:%S")
             corpo_email = """
-        Olá {},
-        a tentiva de inserir o pedido no dia {} através da automação não foi conclída com êxito.
+Olá {},
+a tentiva de inserir o pedido no dia {} através da automação não foi conclída com êxito.
 
-        O motivo: CNPJ {} no corpo do arquivo não foi encontrado nos registros do Oracle NetSuite da Candide Industria e Comercio ltda., certifique-se de ter digitado corretamente, ou se o cliente desejado foi previamente cadastrado no sistema.
-        No caso do CNPJ não estar registrado, entre em contato com o setor de cadastros através do endereço cadastro@candide.com.br.
-        Caso existam irregularidades com o CNPJ, entre em contato com comercial@candide.com.br.
+O motivo: CNPJ {} no corpo do arquivo não foi encontrado nos registros do Oracle NetSuite da Candide Industria e Comercio ltda., certifique-se de ter digitado corretamente, ou se o cliente desejado foi previamente cadastrado no sistema.
+No caso do CNPJ não estar registrado, entre em contato com o setor de cadastros através do endereço cadastro@candide.com.br.
+Caso existam irregularidades com o CNPJ, entre em contato com comercial@candide.com.br.
 
-        Atensiosamente,
-        Candide Industria e Comércio ltda.
+Atensiosamente,
+Candide Industria e Comércio ltda.
                     """.format(name_order_maker, time_now, eid_cliente)
             err_send.send_mail(recipient=order_marker, subject="CNPJ inválido.", content=corpo_email,
                                attach=arch_name)
