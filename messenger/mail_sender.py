@@ -29,28 +29,29 @@ class Postman:
 
         if content is None:
             if err is None:
-                content = """
-    O pedido que acabara de gerar uma tentativa de absorção, não obteve êxito!\n
-    A causa do erro é desconhecido. Entrar em contato com Renan Pires.
-                    
-    Causas comuns de erros:
-        - Nome de arquivo com caractere inválido
-        - Extensão do arquivo incorreta, deve ser <nome_do_arquivo>.xlsx
-        - O arquivo está fora da formatação correta.
-        - O arquivo está com algum item presente no pedido com irregularidade no SKU.
-        - Existem células vazias.\n\n
-    Lembrete: o arquivo deve-se conter apenas duas colunas, na primeira linha deve conter o cabeçalho com a escrita imutável "CNPJ/SKU" na coluna um e na coluna dois "ORDEM DE COMPRA/QUANTIDADE", e então os dados referentes aos pedidos, sendo que cada pedido deve conter em sua primeira linha o cnpj do cliente, e ordem de compra se houver e marcação para aplicação de descontos "n", nas linhas subsequentes devem se conter sku e quantidade referente aos itens, podendo se digitar inumeros pedidos seguindo esta formatação.
-                   
-    Atenciosamente,\n
-    Renan Pires. 
-                        """
+                pass
             else:
                 content = """
-    O pedido que acabara de gerar uma tentativa de absorção, não obteve êxito!\n
-    Causa do erro pelo NetSuite: {}\n\n
-    Tome as devidas providencias quanto a esta problemática e então reenvie o pedido para pedidoscandide@outlook.com.
-    Atenciosamente,\n
-    Renan Pires.
+O pedido que acabara de gerar uma tentativa de absorção, não obteve êxito!\n
+A causa do erro é desconhecido. Entrar em contato com Renan Pires.
+                    
+Causas comuns de erros:
+    - Nome de arquivo com caractere inválido
+    - Extensão do arquivo incorreta, deve ser <nome_do_arquivo>.xlsx
+    - O arquivo está fora da formatação correta.
+    - O arquivo está com algum item presente no pedido com irregularidade no SKU.
+    - Existem células vazias.\n\n
+Lembrete: o arquivo deve-se conter apenas duas colunas, na primeira linha deve conter o cabeçalho com a escrita imutável "CNPJ/SKU" na coluna um e na coluna dois "ORDEM DE COMPRA/QUANTIDADE", e então os dados referentes aos pedidos, sendo que cada pedido deve conter em sua primeira linha o cnpj do cliente, e ordem de compra se houver e marcação para aplicação de descontos "n", nas linhas subsequentes devem se conter sku e quantidade referente aos itens, podendo se digitar inumeros pedidos seguindo esta formatação.
+                   
+Atenciosamente,\n
+Candide Industria e Comercio ltda. 
+                        """
+                content = """
+O pedido que acabara de gerar uma tentativa de absorção, não obteve êxito!\n
+Causa do erro pelo NetSuite: {}\n\n
+Tome as devidas providencias quanto a esta problemática e então reenvie o pedido para pedidoscandide@outlook.com.
+Atenciosamente,\n
+Candide Industria e Comercio ltda.
                 """.format(err)
         if attach is not None:
             complete_path = ""

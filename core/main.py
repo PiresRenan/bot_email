@@ -411,13 +411,43 @@ Candide Industria e Comercio ltda.
                 copy_to = ["suporte.renan@candide.com.br", "suporte@candide.com.br", "comercial@candide.com.br", "rogerio@candide.com.br", "cadastro@candide.com.br",
                            "wagner@candide.com.br", "marcelogentil@candide.com.br", "luiz@candide.com.br"]
                 err_send.send_mail(recipient=order_marker, copy_to=copy_to, subject="Dados cadastrais incompletos: Prazo", attach=arch_name, content=email_content)
+            elif res.endswith('para o seguinte campo: item.'):
+                n_err = res.split("inválido")[1]
+                n_err = n_err.split("para")[0]
+                n_err = int(n_err)
+                eid = self.found_inactive_item(internal_id=n_err)
+                list_inactive = self.get_inactive_itens_list()
+                json_ = json_to_insert
+                cnpj = json_['entity']['externalid']
+                ordem_compra = json_['otherrefnum']
+                list_item = json_['item']['items']
+                brasilia_timezone = pytz.timezone('America/Sao_Paulo')
+                now = datetime.datetime.now(brasilia_timezone)
+                time_now = now.strftime("%d/%m/%Y às %H:%M:%S")
+                conteudo = """
+Olá {},
+o pedido enviado no dia {}, não foi absorvido com êxito.
+
+O item {} não está disponivel. Confira com o setor responsável(comercial@candide.com.br) e tome as medidas devidas enquanto a estes e então reencaminhe novamente o pedido para pedidoscandide@outlook.com.
+
+Segue a lista completa de itens inativos:
+{}
+
+Atenciosamente,
+Candide Industria e Comercio ltda
+            """.format(name_order_maker, time_now, eid, list_inactive)
+                arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
+                err_send.send_mail(recipient=order_marker,
+                                   subject="Item Inativo: {}".format(eid), attach=arch_name,
+                                   content=conteudo)
             elif res != "":
                 json_ = json_to_insert
                 cnpj = json_['entity']['externalid']
                 ordem_compra = json_['otherrefnum']
                 list_item = json_['item']['items']
                 arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
-                err_send.send_mail(recipient=order_marker, err=res, attach=arch_name)
+                print(res)
+                # err_send.send_mail(recipient=order_marker, err=res, attach=arch_name)
             return True
         elif st_code == 204:
             brasilia_timezone = pytz.timezone('America/Sao_Paulo')
@@ -464,6 +494,10 @@ Candide Industria e Comercio ltda.
         arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
         err_send.send_mail(recipient=order_maker, subject="Pedido com item com erro", content=email_content, attach=arch_name)
         print(" 2.3.13 - Pedido com item errado, emitido aviso para que seja tomada as devidas providencias. ")
+
+    def found_inactive_item(self, internal_id=None):
+        obj_api = connection.NS_Services()
+        return obj_api.search_for_inactive(internal_id)
 
     def get_inactive_itens_list(self) -> str:
         obj_api = connection.NS_Services()

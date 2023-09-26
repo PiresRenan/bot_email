@@ -130,6 +130,16 @@ class NS_Services:
         price = result['items'][0]['custitem13']
         return price
 
+    def search_for_inactive(self, internal_id=None):
+        url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
+        data_raw = {
+            "q": f"SELECT externalid FROM item WHERE id='{internal_id}'"
+        }
+        with requests.post(url=url, headers=self.build_header(env=1), json=data_raw) as r:
+            result = r.json()
+        eid = result['items'][0]['externalid']
+        return eid
+
     def is_inactive(self, eid=None):
         url = "https://7586908.suitetalk.api.netsuite.com/services/rest/query/v1/suiteql?limit=1000"
         data_raw = {
