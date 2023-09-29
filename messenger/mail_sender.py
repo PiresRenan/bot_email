@@ -22,7 +22,19 @@ class Postman:
 
         if copy_to is None:
             # copy_to = ["suporte.renan@candide.com.br"]
-            copy_to = ["suporte.renan@candide.com.br", "suporte@candide.com.br", "cadastro@candide.com.br", "comercial@candide.com.br", "rogerio@candide.com.br", "wagner@candide.com.br", "marcelogentil@candide.com.br", "luiz@candide.com.br"]
+            copy_to = [
+                "suporte.renan@candide.com.br",
+                "suporte@candide.com.br",
+                "cadastro@candide.com.br",
+                "decio@candide.com.br",
+                "cleo@candide.com.br",
+                "emerson.figueiredo@candide.com.br",
+                "rosana@candide.com.br",
+                "rogerio@candide.com.br",
+                "wagner@candide.com.br",
+                "marcelogentil@candide.com.br",
+                "luiz@candide.com.br"
+                       ]
 
         if subject is None:
             subject = "Pedido com erro. Causa pendente."
