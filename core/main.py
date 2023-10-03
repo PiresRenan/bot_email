@@ -438,14 +438,33 @@ Candide Industria e Comercio ltda
                 err_send.send_mail(recipient=order_marker,
                                    subject="Item Inativo: {}".format(eid), attach=arch_name,
                                    content=conteudo)
+            elif res.endswith('Especifique um endereço de e-mail para envio.'):
+                json_ = json_to_insert
+                cnpj = json_['entity']['externalid']
+                ordem_compra = json_['otherrefnum']
+                list_item = json_['item']['items']
+                email_content = """
+Olá, {}
+Houve um problema ao inserir o pedido.
+
+Motivo: O cadastro do cliente está incompleto. Campo "email" está pendente.
+O pedido poderá ser inserido assim que o setor responsável atualizar os dados cadastrais, sendo necessário encaminhar este email para cadastro@candide.com.br, solicitando que os dados do cliente do CNPJ {} sejam alinhados.
+
+Atensiosamente,
+Candide Industria e Comercio ltda.
+                                                """.format(name_order_maker, cnpj)
+                arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
+                print(" 2.3.15 - Pedido NÃO inserido - Erro no email cadastrado do cliente.")
+                err_send.send_mail(recipient=order_marker, subject="Dados cadastrais incompletos: Email",
+                                   attach=arch_name, content=email_content)
             elif res != "":
                 json_ = json_to_insert
                 cnpj = json_['entity']['externalid']
                 ordem_compra = json_['otherrefnum']
                 list_item = json_['item']['items']
                 arch_name = self.create_xlsx(cnpj, ordem_compra, list_item)
-                print(res)
-                # err_send.send_mail(recipient=order_marker, err=res, attach=arch_name)
+                print(" 2.3.15 - Pedido NÃO inserido - Erro não mapeado: {}.".format(res))
+                err_send.send_mail(recipient=order_marker, err=res, attach=arch_name)
             return True
         elif st_code == 204:
             brasilia_timezone = pytz.timezone('America/Sao_Paulo')
