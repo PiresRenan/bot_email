@@ -163,8 +163,8 @@ Candide Industria e Comércio ltda.
         erros = []
         desconto = ""
         lista_items_formatada: list = []
-        print(lista_items_formatada)
-        quit()
+        #print(lista_items_formatada)
+        #quit()
         client_data = self.recover_client_data(eid_cliente, order_marker, name_order_maker, ordem_de_compra_e_desconto, lista_items)
         if client_data != 0:
             try:
