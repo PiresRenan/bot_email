@@ -56,7 +56,7 @@ class Salesprogram:
             pedidos: list = []
             for idx, row in df.iterrows():
                 cnpj_sku, ordem_quantidade = str(row.iloc[0]), row.iloc[1]
-                if len(str(cnpj_sku).replace(" ","")) > 6:
+                if len(str(cnpj_sku).replace(" ","")) > 10:
                     flag += 1
                     pedido_atual = {"Pedido": [cnpj_sku, ordem_quantidade], "Items": []}
                     pedidos.append(pedido_atual)
