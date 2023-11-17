@@ -243,7 +243,7 @@ Candide Industria e Comércio ltda.
                     print(" 2.3.9 - Será aplicado as promoções para cada item de acordo com o sistema.")
                 for item in lista_items:
                     for key, value in item.items():
-                        print(key)
+                        #print(key)
                         try:
                             if math.isnan(float(key)):
                                 key = 0
