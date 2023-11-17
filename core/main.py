@@ -56,7 +56,7 @@ class Salesprogram:
             pedidos: list = []
             for idx, row in df.iterrows():
                 cnpj_sku, ordem_quantidade = str(row.iloc[0]), row.iloc[1]
-                if len(str(cnpj_sku)) > 6:
+                if len(str(cnpj_sku).replace(" ","")) > 6:
                     flag += 1
                     pedido_atual = {"Pedido": [cnpj_sku, ordem_quantidade], "Items": []}
                     pedidos.append(pedido_atual)
@@ -243,6 +243,7 @@ Candide Industria e Comércio ltda.
                     print(" 2.3.9 - Será aplicado as promoções para cada item de acordo com o sistema.")
                 for item in lista_items:
                     for key, value in item.items():
+                        print(key)
                         try:
                             if math.isnan(float(key)):
                                 key = 0
