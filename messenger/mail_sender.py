@@ -10,25 +10,21 @@ class Postman:
 
     def __init__(self):
         # self.copy = ["Suporte@candide.com.br"]
-        # self.copy = ["Suporte@candide.com.br, rogerio@candide.com.br, emerson.figueiredo@candide.com.br, suporte.renan@candide.com.br"]
-        self.username = "suporte.renan@candide.com.br"
+        self.username = "suporte@candide.com.br"
         self.password = "02535040Rock;,"
         self.smtp_server = "smtp-mail.outlook.com"
 
     def send_mail(self, recipient=None, copy_to=None, subject=None, attach=None, content=None, err=None) -> bool:
 
         if recipient is None:
-            recipient = "suporte.renan@candide.com.br"
+            recipient = "suporte@candide.com.br"
 
         if copy_to is None:
-            # copy_to = ["suporte.renan@candide.com.br"]
             copy_to = [
-                "suporte.renan@candide.com.br",
                 "suporte@candide.com.br",
                 "cadastro@candide.com.br",
                 "decio@candide.com.br",
                 "cleo@candide.com.br",
-                "emerson.figueiredo@candide.com.br",
                 "rosana@candide.com.br",
                 "rogerio@candide.com.br",
                 "wagner@candide.com.br",
@@ -45,7 +41,7 @@ class Postman:
             else:
                 content = """
 O pedido que acabara de gerar uma tentativa de absorção, não obteve êxito!\n
-A causa do erro é desconhecido. Entrar em contato com Renan Pires.
+A causa do erro é desconhecido. Entrar em contato com Suporte.
                     
 Causas comuns de erros:
     - Nome de arquivo com caractere inválido
