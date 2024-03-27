@@ -10,9 +10,10 @@ class Postman:
 
     def __init__(self):
         # self.copy = ["suporte.renan@candide.com.br"]
-        #self.password = "02535040Rock;,"
-        self.username = "sistema@candide.com.br"
-        self.password = "Sup@1818;,"
+        self.username = "suporte.renan@candide.com.br"
+        self.password = "02535040Rock;,"
+        #self.username = "netsuite@candide.com.br"
+        #self.password = "Sup@1818;,"
         self.smtp_server = "smtp-mail.outlook.com"
 
     def send_mail(self, recipient=None, copy_to=None, subject=None, attach=None, content=None, err=None) -> bool:
