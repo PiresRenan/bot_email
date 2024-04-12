@@ -12,8 +12,8 @@ from .mail_sender import Postman
 class Email_getter:
     def __init__(self) -> None:
         self.imap_server = 'outlook.office365.com'
-        self.user = 'pedidoscandide@outlook.com'
-        self.password = '13579Can'
+        self.user = 'pedidos@outlook.com'
+        self.password = '12345'
         self.obj_email = Postman()
 
     def email_catch(self) -> list:
@@ -127,7 +127,7 @@ altere o nome do arquivo de maneira simples e caso o erro persista, tente enviar
 Atenciosamente,
 Candide Industria e Comercio ltda.
         """.format(name_sender, problem_maker, hora_formatada, data_formatada)
-        warning_group = ["suporte@candide.com.br", "rogerio@candide.com.br"]
+        warning_group = ["suporte@email.com.br", "superior@email.com.br"]
         assunto = "Erro de pedido via automatica: Formato invalido"
         if err is not None:
             self.obj_email.send_mail(recipient=problem_maker, subject=assunto, attach=err, content=msg)

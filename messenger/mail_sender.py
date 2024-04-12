@@ -9,29 +9,26 @@ from email import encoders
 class Postman:
 
     def __init__(self):
-        # self.copy = ["suporte.renan@candide.com.br"]
-        #self.username = "suporte.renan@candide.com.br"
-        #self.password = "02535040Rock;,"
-        self.username = "netsuite@candide.com.br"
-        self.password = "Sup@1818;,"
+        self.username = "netsuite@email.com.br"
+        self.password = "123456"
         self.smtp_server = "smtp-mail.outlook.com"
 
     def send_mail(self, recipient=None, copy_to=None, subject=None, attach=None, content=None, err=None) -> bool:
 
         if recipient is None:
-            recipient = "suporte@candide.com.br"
+            recipient = "suporte@email.com.br"
 
         if copy_to is None:
             copy_to = [
-                "suporte@candide.com.br",
-                "cadastro@candide.com.br",
-                "decio@candide.com.br",
-                "cleo@candide.com.br",
-                "rosana@candide.com.br",
-                "rogerio@candide.com.br",
-                "wagner@candide.com.br",
-                "marcelogentil@candide.com.br",
-                "luiz@candide.com.br"
+                "suporte@email.com.br",
+                "cadastro@email.com.br",
+                "decio@email.com.br",
+                "cleo@email.com.br",
+                "rosana@email.com.br",
+                "rogerio@email.com.br",
+                "wagner@email.com.br",
+                "marcelogentil@email.com.br",
+                "luiz@email.com.br"
                        ]
 
         if subject is None:
